@@ -37,10 +37,16 @@
 
 @media (min-width: 769px) {
   .desktop-header-wrapper {
-    max-width: 600px;
+    max-width: 800px;
     margin: 0 auto;
     border-left: 1px solid #222;
     border-right: 1px solid #222;
+  }
+}
+
+@media (min-width: 1024px) {
+  .desktop-header-wrapper {
+    max-width: 900px;
   }
 }
 
@@ -51,6 +57,16 @@ html, body {
     padding: 0;
     overflow-x: hidden;
   }
+
+/* Hide all scrollbars globally */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
   
   /* Main App Container */
   .app-container {

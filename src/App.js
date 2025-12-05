@@ -9,6 +9,7 @@ import EmailVerify from './onboarding/emailVerify';
 import EmailConfirm from './onboarding/emailConfirm';
 import ForgotPassword from './onboarding/forgotPassword';
 import NewPassword from './onboarding/newPassword';
+import ProfileComplete from './onboarding/profileComplete';
 import Home from './main/home';
 import Training from './main/training';
 import Schedule from './main/schedule';
@@ -88,7 +89,8 @@ function App() {
           <Route path="/confirm" element={<EmailConfirm />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/new-password" element={<NewPassword />} />
-          
+          <Route path="/profile-complete" element={<ProfileComplete />} />
+
           {/* Main App Routes */}
           <Route path="/home" element={<Home />} />
           <Route path="/newrepstart" element={<NewRepStart />} />

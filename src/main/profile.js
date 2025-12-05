@@ -116,52 +116,60 @@ function Profile() {
       overflow: 'hidden',
       backgroundColor: '#0a0a0a'
     }}>
-      {/* Header */}
-      <div className="desktop-header-wrapper" style={{
-        display: 'flex',
-        alignItems: 'center',
-        padding: '12px 16px',
-        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)',
-        backgroundColor: '#0a0a0a',
-        flexShrink: 0,
+      {/* Header Wrapper for Desktop Centering */}
+      <div style={{
         position: 'fixed',
         top: 0,
         left: 0,
         right: 0,
         zIndex: 1000,
-        gap: '12px'
+        display: 'flex',
+        justifyContent: 'center',
+        backgroundColor: '#0a0a0a'
       }}>
-        <button onClick={() => navigate('/home')} style={{
-          width: '40px',
-          height: '40px',
-          borderRadius: '12px',
-          backgroundColor: '#1a1a1a',
-          border: '1px solid #2a2a2a',
+        <div className="desktop-header-wrapper" style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          color: '#ffffff',
-          fontSize: '1.2rem'
-        }}>←</button>
-        <h1 style={{
-          color: '#ffffff',
-          fontSize: '20px',
-          fontWeight: '700',
-          margin: 0,
-          flex: 1,
-          textAlign: 'center',
-          marginRight: '40px'
-        }}>Profile</h1>
-        <div style={{
-          position: 'absolute',
-          bottom: 0,
-          left: '40px',
-          right: '40px',
-          height: '2px',
-          backgroundColor: 'rgba(255, 255, 255, 0.35)',
-          borderRadius: '1px'
-        }} />
+          padding: '12px 16px',
+          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)',
+          backgroundColor: '#0a0a0a',
+          flexShrink: 0,
+          width: '100%',
+          gap: '12px',
+          position: 'relative'
+        }}>
+          <button onClick={() => navigate('/home')} style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '12px',
+            backgroundColor: '#1a1a1a',
+            border: '1px solid #2a2a2a',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            color: '#ffffff',
+            fontSize: '1.2rem'
+          }}>←</button>
+          <h1 style={{
+            color: '#ffffff',
+            fontSize: '20px',
+            fontWeight: '700',
+            margin: 0,
+            flex: 1,
+            textAlign: 'center',
+            marginRight: '40px'
+          }}>Profile</h1>
+          <div style={{
+            position: 'absolute',
+            bottom: 0,
+            left: '40px',
+            right: '40px',
+            height: '2px',
+            backgroundColor: 'rgba(255, 255, 255, 0.35)',
+            borderRadius: '1px'
+          }} />
+        </div>
       </div>
 
       {/* Scrollable Content Container */}
@@ -174,12 +182,16 @@ function Profile() {
         overflowY: 'auto',
         overflowX: 'hidden',
         touchAction: 'pan-y',
-        WebkitOverflowScrolling: 'touch'
+        WebkitOverflowScrolling: 'touch',
+        display: 'flex',
+        justifyContent: 'center'
       }}>
-        <div style={{
+        <div className="desktop-content-wrapper" style={{
           paddingLeft: '20px',
           paddingRight: '20px',
-          paddingBottom: '20px'
+          paddingBottom: '20px',
+          width: '100%',
+          boxSizing: 'border-box'
         }}>
           <p style={{
             color: '#888',

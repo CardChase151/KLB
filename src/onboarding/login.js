@@ -19,8 +19,22 @@ function Login() {
         const { data: { session }, error } = await supabase.auth.getSession();
 
         if (session && !error) {
-          console.log('Existing session found, redirecting to home');
-          navigate('/home', { replace: true });
+          console.log('Existing session found, checking profile...');
+
+          // Check if profile is complete
+          const { data: userProfile } = await supabase
+            .from('users')
+            .select('profile_complete')
+            .eq('id', session.user.id)
+            .single();
+
+          if (userProfile && userProfile.profile_complete === false) {
+            console.log('Profile incomplete, redirecting to profile-complete');
+            navigate('/profile-complete', { replace: true });
+          } else {
+            console.log('Profile complete, redirecting to home');
+            navigate('/home', { replace: true });
+          }
           return;
         }
 
@@ -58,6 +72,8 @@ function Login() {
       }
 
       // Check if user profile exists, create if missing
+      let profileComplete = true;
+
       if (data.user) {
         const { data: userProfile, error: profileError } = await supabase
           .from('users')
@@ -67,35 +83,28 @@ function Login() {
 
         // If no profile exists, create one from auth metadata
         if (profileError && profileError.code === 'PGRST116') {
-          console.log('Creating user profile from metadata...');
-          console.log('Auth user data:', data.user);
-
-          const metadata = data.user.user_metadata || {};
-          console.log('Metadata:', metadata);
-
-          const firstName = metadata.first_name || '';
-          const lastName = metadata.last_name || '';
-
-          console.log('Extracted names:', { firstName, lastName });
+          console.log('Creating user profile...');
 
           const { error: insertError } = await supabase
             .from('users')
             .insert([{
               id: data.user.id,
               email: data.user.email,
-              first_name: firstName,
-              last_name: lastName,
-              role: 'user'
+              first_name: '',
+              last_name: '',
+              role: 'user',
+              profile_complete: false
             }]);
 
           if (insertError) {
             console.error('Error creating user profile:', insertError);
-            // Don't fail login - they can still use the app
           } else {
-            console.log('User profile created successfully with names:', { firstName, lastName });
+            console.log('User profile created, needs completion');
+            profileComplete = false;
           }
         } else if (userProfile) {
-          console.log('User profile already exists:', userProfile);
+          console.log('User profile exists:', userProfile);
+          profileComplete = userProfile.profile_complete !== false;
         }
       }
 
@@ -105,7 +114,13 @@ function Login() {
       await new Promise(resolve => setTimeout(resolve, remainingTime));
 
       console.log('Login successful:', data);
-      navigate('/home');
+
+      // Redirect based on profile completion status
+      if (!profileComplete) {
+        navigate('/profile-complete');
+      } else {
+        navigate('/home');
+      }
 
     } catch (error) {
       console.error('Unexpected error:', error);
