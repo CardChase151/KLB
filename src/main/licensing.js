@@ -201,7 +201,7 @@ function Licensing() {
           touchAction: 'pan-y',
           WebkitOverflowScrolling: 'touch'
         }}>
-          <div style={{
+          <div className="desktop-content-wrapper" style={{
             paddingLeft: '20px',
             paddingRight: '20px',
             paddingBottom: '20px'
@@ -378,7 +378,7 @@ function Licensing() {
         touchAction: 'pan-y',
         WebkitOverflowScrolling: 'touch'
       }}>
-        <div style={{
+        <div className="desktop-content-wrapper" style={{
           paddingLeft: '20px',
           paddingRight: '20px',
           paddingBottom: '20px'

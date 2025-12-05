@@ -579,14 +579,13 @@ function ChatDash() {
         touchAction: 'pan-y',
         WebkitOverflowScrolling: 'touch'
       }}>
-        <div className="app-container" style={{
+        <div className="app-container desktop-content-wrapper" style={{
           marginTop: '0',
           minHeight: '100%',
           paddingBottom: '20px',
           paddingLeft: '20px',
           paddingRight: '25px',
           width: '100%',
-          maxWidth: '100vw',
           overflowX: 'hidden',
           boxSizing: 'border-box'
         }}>

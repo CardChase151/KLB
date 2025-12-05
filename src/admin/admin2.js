@@ -4,6 +4,7 @@ import { supabase } from '../supabaseClient';
 import ImageUpload from './ImageUpload';
 import BottomNav from '../bottomnav/bottomnav';
 import './admin.css';
+import '../main/content.css';
 import klbLogo from '../assets/klb-logo.png';
 
 function Admin2() {
@@ -561,7 +562,7 @@ function Admin2() {
           touchAction: 'pan-y',
           WebkitOverflowScrolling: 'touch'
         }}>
-          <div style={{
+          <div className="desktop-content-wrapper" style={{
             padding: '20px',
             paddingTop: '12px',
             paddingBottom: '100px'
@@ -944,7 +945,7 @@ function Admin2() {
         touchAction: 'pan-y',
         WebkitOverflowScrolling: 'touch'
       }}>
-        <div className="admin-container" style={{
+        <div className="admin-container desktop-content-wrapper" style={{
           marginTop: '0',
           minHeight: '100%',
           paddingTop: '0',
@@ -952,7 +953,6 @@ function Admin2() {
           paddingLeft: '20px',
           paddingRight: '20px',
           width: '100%',
-          maxWidth: '100vw',
           overflowX: 'hidden',
           boxSizing: 'border-box'
         }}>

@@ -126,35 +126,36 @@ function Home() {
       case 'home':
         return (
           <div className="home-content">
-            {/* Logo */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
-              <img src={logo} alt="KLB" style={{ width: '200px', height: 'auto' }} />
-            </div>
+            <div className="desktop-content-wrapper">
+              {/* Logo */}
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
+                <img src={logo} alt="KLB" style={{ width: '200px', height: 'auto' }} />
+              </div>
 
-            {/* Welcome */}
-            <div className="welcome-section">
-              <h2 className="welcome-title">
-                Welcome, {userProfile?.first_name || user?.email?.split('@')[0] || 'User'}!
-              </h2>
-              <p style={{
-                color: '#666',
-                fontSize: '0.85rem',
-                margin: '8px 0 0 0',
-                fontWeight: '400',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '4px'
-              }}>
-                <span>Scroll down for more content</span>
-                <span style={{ fontSize: '1.2rem', opacity: 0.7, letterSpacing: '8px' }}>&#8964; &#8964; &#8964;</span>
-              </p>
-            </div>
+              {/* Welcome */}
+              <div className="welcome-section">
+                <h2 className="welcome-title">
+                  Welcome, {userProfile?.first_name || user?.email?.split('@')[0] || 'User'}!
+                </h2>
+                <p style={{
+                  color: '#666',
+                  fontSize: '0.85rem',
+                  margin: '8px 0 0 0',
+                  fontWeight: '400',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}>
+                  <span>Scroll down for more content</span>
+                  <span style={{ fontSize: '1.2rem', opacity: 0.7, letterSpacing: '8px' }}>&#8964; &#8964; &#8964;</span>
+                </p>
+              </div>
 
-            {/* Dynamic Content from Admin */}
-            {homeContent.length > 0 && (
-              <div style={{ marginTop: '2rem', marginLeft: '16px', marginRight: '16px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {homeContent.map((item) => (
+              {/* Dynamic Content from Admin */}
+              {homeContent.length > 0 && (
+                <div style={{ marginTop: '2rem', marginLeft: '16px', marginRight: '16px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {homeContent.map((item) => (
                   <div
                     key={item.id}
                     style={{
@@ -221,8 +222,9 @@ function Home() {
                     )}
                   </div>
                 ))}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </div>
         );
       

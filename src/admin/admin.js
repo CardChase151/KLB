@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import BottomNav from '../bottomnav/bottomnav';
 import './admin.css';
+import '../main/content.css';
 
 function Admin() {
   const [user, setUser] = useState(null);
@@ -161,7 +162,7 @@ function Admin() {
         touchAction: 'pan-y',
         WebkitOverflowScrolling: 'touch'
       }}>
-        <div className="admin-container" style={{
+        <div className="admin-container desktop-content-wrapper" style={{
           marginTop: '0',
           minHeight: '100%',
           paddingTop: '0',
@@ -169,7 +170,6 @@ function Admin() {
           paddingLeft: '20px',
           paddingRight: '20px',
           width: '100%',
-          maxWidth: '100vw',
           overflowX: 'hidden',
           boxSizing: 'border-box'
         }}>

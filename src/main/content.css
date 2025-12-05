@@ -2,6 +2,30 @@
    HOME COMPONENT STYLES - RESPONSIVE DESIGN
    =========================================== */
 
+/* ===========================================
+   DESKTOP CONSTRAINT WRAPPER
+   Constrains content width on desktop while
+   leaving mobile layout untouched
+   =========================================== */
+
+.desktop-content-wrapper {
+  width: 100%;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .desktop-content-wrapper {
+    max-width: 600px;
+    padding: 0 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .desktop-content-wrapper {
+    max-width: 700px;
+  }
+}
+
 /* Ensure full black background + prevent horizontal scroll */
 html, body {
     background-color: #000000;
