@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import './onboarding.css';
 
-function ProfileComplete() {
+function ProfileComplete({ onComplete }) {
   const [user, setUser] = useState(null);
   const [step, setStep] = useState('welcome'); // welcome, name-input, clarify-first, clarify-last, complete
   const [fullName, setFullName] = useState('');
@@ -114,7 +114,12 @@ function ProfileComplete() {
 
       if (error) throw error;
 
-      navigate('/home', { replace: true });
+      // Refresh profile in App.js, which will trigger redirect to /home
+      if (onComplete) {
+        await onComplete();
+      } else {
+        navigate('/home', { replace: true });
+      }
     } catch (error) {
       console.error('Error updating profile:', error);
       alert('Error saving profile: ' + error.message);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
@@ -24,20 +24,12 @@ import Admin2 from './admin/admin2';
 import Profile from './main/profile';
 import Notifications from './main/notifications';
 
-function NavigationWatcher() {
-  const location = useLocation();
-
-  useEffect(() => {
-    // Navigation watcher - no alerts for now
-  }, [location]);
-
-  return null;
-}
-
 function App() {
-  const [user, setUser] = useState(null);
+  const [session, setSession] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Check session and profile on mount and auth changes
   useEffect(() => {
     // Setup StatusBar for native platforms
     const setupStatusBar = async () => {
@@ -47,25 +39,40 @@ function App() {
           await StatusBar.setStyle({ style: Style.Dark });
           await StatusBar.setBackgroundColor({ color: '#000000' });
         } catch (e) {
-          // StatusBar not available on this platform
           console.log('StatusBar not available:', e.message);
         }
       }
     };
     setupStatusBar();
 
-    // For now, just set loading to false and don't fetch profiles
-    console.log('Setting loading to false immediately');
-    setLoading(false);
+    // Check initial session
+    const checkSession = async () => {
+      try {
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        setSession(currentSession);
 
-    // Listen for auth changes but don't fetch profile yet
+        if (currentSession?.user) {
+          await loadUserProfile(currentSession.user.id);
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkSession();
+
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth event:', event, session?.user?.email);
-        if (event === 'SIGNED_IN' && session?.user) {
-          console.log('User signed in, not fetching profile yet');
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null);
+      async (event, newSession) => {
+        console.log('Auth event:', event);
+        setSession(newSession);
+
+        if (newSession?.user) {
+          await loadUserProfile(newSession.user.id);
+        } else {
+          setUserProfile(null);
         }
       }
     );
@@ -73,40 +80,148 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const loadUserProfile = async (userId) => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error && error.code === 'PGRST116') {
+        // No profile exists, create one
+        const { data: newProfile, error: insertError } = await supabase
+          .from('users')
+          .insert([{
+            id: userId,
+            email: session?.user?.email || '',
+            first_name: '',
+            last_name: '',
+            role: 'user',
+            profile_complete: false
+          }])
+          .select()
+          .single();
+
+        if (!insertError) {
+          setUserProfile(newProfile);
+        }
+      } else if (profile) {
+        setUserProfile(profile);
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+    }
+  };
+
+  // Refresh profile (called after profile completion)
+  const refreshProfile = async () => {
+    if (session?.user) {
+      await loadUserProfile(session.user.id);
+    }
+  };
+
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        backgroundColor: '#0a0a0a'
+      }}>
+        <div style={{
+          width: '40px',
+          height: '40px',
+          border: '3px solid #333',
+          borderTop: '3px solid #ffffff',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }} />
+        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
   }
+
+  // Determine what to show based on auth state
+  const isAuthenticated = !!session;
+  const isProfileComplete = userProfile?.profile_complete !== false;
 
   return (
     <Router>
-      <NavigationWatcher />
       <div className="App" style={{ overflow: 'hidden', height: '100vh', width: '100vw' }}>
         <Routes>
-          {/* Authentication Routes */}
-          <Route path="/" element={<Login />} />
-          <Route path="/create-account" element={<CreateAccount />} />
+          {/* Public Routes - Only accessible when NOT logged in */}
+          <Route path="/" element={
+            isAuthenticated
+              ? (isProfileComplete ? <Navigate to="/home" replace /> : <Navigate to="/profile-complete" replace />)
+              : <Login />
+          } />
+          <Route path="/create-account" element={
+            isAuthenticated
+              ? (isProfileComplete ? <Navigate to="/home" replace /> : <Navigate to="/profile-complete" replace />)
+              : <CreateAccount />
+          } />
           <Route path="/email-verify" element={<EmailVerify />} />
           <Route path="/confirm" element={<EmailConfirm />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/new-password" element={<NewPassword />} />
-          <Route path="/profile-complete" element={<ProfileComplete />} />
 
-          {/* Main App Routes */}
-          <Route path="/home" element={<Home />} />
-          <Route path="/newrepstart" element={<NewRepStart />} />
-          <Route path="/training" element={<Training />} />
-          <Route path="/schedule" element={<Schedule />} />
-          <Route path="/licensing" element={<Licensing />} />
-          <Route path="/calculator" element={<Calculator />} />
-          <Route path="/chat" element={<ChatDash />} />
-          <Route path="/chat/create" element={<ChatCreate />} />
-          <Route path="/chat/:chatId" element={<ChatMessage />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/notifications" element={<Notifications />} />
+          {/* Profile Complete - Only when authenticated but profile incomplete */}
+          <Route path="/profile-complete" element={
+            !isAuthenticated
+              ? <Navigate to="/" replace />
+              : isProfileComplete
+                ? <Navigate to="/home" replace />
+                : <ProfileComplete onComplete={refreshProfile} />
+          } />
+
+          {/* Protected Routes - Only accessible when logged in AND profile complete */}
+          <Route path="/home" element={
+            !isAuthenticated
+              ? <Navigate to="/" replace />
+              : !isProfileComplete
+                ? <Navigate to="/profile-complete" replace />
+                : <Home />
+          } />
+          <Route path="/newrepstart" element={
+            !isAuthenticated ? <Navigate to="/" replace /> : !isProfileComplete ? <Navigate to="/profile-complete" replace /> : <NewRepStart />
+          } />
+          <Route path="/training" element={
+            !isAuthenticated ? <Navigate to="/" replace /> : !isProfileComplete ? <Navigate to="/profile-complete" replace /> : <Training />
+          } />
+          <Route path="/schedule" element={
+            !isAuthenticated ? <Navigate to="/" replace /> : !isProfileComplete ? <Navigate to="/profile-complete" replace /> : <Schedule />
+          } />
+          <Route path="/licensing" element={
+            !isAuthenticated ? <Navigate to="/" replace /> : !isProfileComplete ? <Navigate to="/profile-complete" replace /> : <Licensing />
+          } />
+          <Route path="/calculator" element={
+            !isAuthenticated ? <Navigate to="/" replace /> : !isProfileComplete ? <Navigate to="/profile-complete" replace /> : <Calculator />
+          } />
+          <Route path="/chat" element={
+            !isAuthenticated ? <Navigate to="/" replace /> : !isProfileComplete ? <Navigate to="/profile-complete" replace /> : <ChatDash />
+          } />
+          <Route path="/chat/create" element={
+            !isAuthenticated ? <Navigate to="/" replace /> : !isProfileComplete ? <Navigate to="/profile-complete" replace /> : <ChatCreate />
+          } />
+          <Route path="/chat/:chatId" element={
+            !isAuthenticated ? <Navigate to="/" replace /> : !isProfileComplete ? <Navigate to="/profile-complete" replace /> : <ChatMessage />
+          } />
+          <Route path="/profile" element={
+            !isAuthenticated ? <Navigate to="/" replace /> : !isProfileComplete ? <Navigate to="/profile-complete" replace /> : <Profile />
+          } />
+          <Route path="/notifications" element={
+            !isAuthenticated ? <Navigate to="/" replace /> : !isProfileComplete ? <Navigate to="/profile-complete" replace /> : <Notifications />
+          } />
 
           {/* Admin Routes */}
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/admin-manage" element={<Admin2 />} />
+          <Route path="/admin" element={
+            !isAuthenticated ? <Navigate to="/" replace /> : !isProfileComplete ? <Navigate to="/profile-complete" replace /> : <Admin />
+          } />
+          <Route path="/admin-manage" element={
+            !isAuthenticated ? <Navigate to="/" replace /> : !isProfileComplete ? <Navigate to="/profile-complete" replace /> : <Admin2 />
+          } />
         </Routes>
       </div>
     </Router>

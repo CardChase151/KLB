@@ -12,42 +12,10 @@ function Login() {
   const [isCheckingSession, setIsCheckingSession] = useState(true);
   const navigate = useNavigate();
 
-  // Check for existing session on component mount
+  // App.js now handles session checking and redirects
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-
-        if (session && !error) {
-          console.log('Existing session found, checking profile...');
-
-          // Check if profile is complete
-          const { data: userProfile } = await supabase
-            .from('users')
-            .select('profile_complete')
-            .eq('id', session.user.id)
-            .single();
-
-          if (userProfile && userProfile.profile_complete === false) {
-            console.log('Profile incomplete, redirecting to profile-complete');
-            navigate('/profile-complete', { replace: true });
-          } else {
-            console.log('Profile complete, redirecting to home');
-            navigate('/home', { replace: true });
-          }
-          return;
-        }
-
-        console.log('No existing session found');
-        setIsCheckingSession(false);
-      } catch (error) {
-        console.error('Error checking session:', error);
-        setIsCheckingSession(false);
-      }
-    };
-
-    checkSession();
-  }, [navigate]);
+    setIsCheckingSession(false);
+  }, []);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -71,56 +39,13 @@ function Login() {
         return;
       }
 
-      // Check if user profile exists, create if missing
-      let profileComplete = true;
-
-      if (data.user) {
-        const { data: userProfile, error: profileError } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', data.user.id)
-          .single();
-
-        // If no profile exists, create one from auth metadata
-        if (profileError && profileError.code === 'PGRST116') {
-          console.log('Creating user profile...');
-
-          const { error: insertError } = await supabase
-            .from('users')
-            .insert([{
-              id: data.user.id,
-              email: data.user.email,
-              first_name: '',
-              last_name: '',
-              role: 'user',
-              profile_complete: false
-            }]);
-
-          if (insertError) {
-            console.error('Error creating user profile:', insertError);
-          } else {
-            console.log('User profile created, needs completion');
-            profileComplete = false;
-          }
-        } else if (userProfile) {
-          console.log('User profile exists:', userProfile);
-          profileComplete = userProfile.profile_complete !== false;
-        }
-      }
-
       const elapsed = Date.now() - startTime;
-      const remainingTime = Math.max(0, 3000 - elapsed);
+      const remainingTime = Math.max(0, 2000 - elapsed);
 
       await new Promise(resolve => setTimeout(resolve, remainingTime));
 
       console.log('Login successful:', data);
-
-      // Redirect based on profile completion status
-      if (!profileComplete) {
-        navigate('/profile-complete');
-      } else {
-        navigate('/home');
-      }
+      // App.js onAuthStateChange will handle profile check and redirect
 
     } catch (error) {
       console.error('Unexpected error:', error);
