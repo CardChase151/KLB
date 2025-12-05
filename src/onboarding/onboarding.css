@@ -1507,6 +1507,32 @@
     animation: spin 1s linear infinite;
   }
 
+  .profile-back-button {
+    background: none;
+    color: #888;
+    border: none;
+    font-size: 0.95rem;
+    cursor: pointer;
+    margin-top: 20px;
+    padding: 12px;
+    transition: color 0.2s ease;
+  }
+
+  .profile-back-button:hover {
+    color: #ffffff;
+  }
+
+  .profile-name-confirm {
+    font-size: 1.5rem;
+    color: #ffffff;
+    font-weight: 600;
+    margin: 16px 0 32px 0;
+    padding: 16px 24px;
+    background-color: #1a1a1a;
+    border-radius: 12px;
+    border: 1px solid #333;
+  }
+
   /* Mobile responsive */
   @media (max-width: 480px) {
     .profile-complete-container {

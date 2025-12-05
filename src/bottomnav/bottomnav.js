@@ -1,24 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import { useAuth } from '../context/AuthContext';
 import './bottomnav.css';
 
-function BottomNav({ activeTab, onTabChange, user }) {
+// CHAT_ENABLED: Set to true when chats/chat_participants tables exist in Supabase
+const CHAT_ENABLED = false;
+
+function BottomNav() {
   const [showMoreNav, setShowMoreNav] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { userProfile } = useAuth();
+
+  // Determine active tab from current path
+  const getActiveTab = () => {
+    const path = location.pathname;
+    if (path === '/home' || path === '/') return 'home';
+    if (path === '/notifications') return 'notifications';
+    if (path === '/schedule') return 'schedule';
+    if (path.startsWith('/levelup')) return 'levelup';
+    if (path === '/training') return 'training';
+    if (path === '/licensing') return 'licensing';
+    if (path === '/calculator') return 'calculator';
+    if (path === '/profile') return 'profile';
+    if (path.startsWith('/admin')) return 'admin';
+    if (path.startsWith('/chat')) return 'chat';
+    if (path === '/newrepstart') return 'newrepstart';
+    return 'home';
+  };
+
+  const activeTab = getActiveTab();
 
   // Check if user is admin
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = userProfile?.role === 'admin';
 
   useEffect(() => {
-    if (user?.id) {
+    if (CHAT_ENABLED && userProfile?.id) {
       loadUnreadCount();
     }
-  }, [user]);
+  }, [userProfile]);
 
   const loadUnreadCount = async () => {
-    if (!user?.id) return;
+    if (!CHAT_ENABLED || !userProfile?.id) return;
 
     try {
       // Get current user session
@@ -27,20 +52,8 @@ function BottomNav({ activeTab, onTabChange, user }) {
 
       const currentUser = session.user;
 
-      // Get user permissions
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('team_inspire_enabled, hidden_chats')
-        .eq('id', currentUser.id)
-        .single();
-
-      if (userError) return;
-
-      const userPermissions = userData || {};
-      const hiddenChats = userPermissions.hidden_chats || [];
-
       // Get user's chats
-      let chatsQuery = supabase
+      const { data: userChats, error: chatsError } = await supabase
         .from('chats')
         .select(`
           id,
@@ -53,18 +66,6 @@ function BottomNav({ activeTab, onTabChange, user }) {
         .eq('chat_participants.user_id', currentUser.id)
         .eq('chat_participants.is_active', true)
         .eq('is_active', true);
-
-      // Exclude KLB chat if user doesn't have access
-      if (!userPermissions.team_inspire_enabled) {
-        chatsQuery = chatsQuery.neq('type', 'mandatory');
-      }
-
-      // Exclude hidden chats
-      if (hiddenChats.length > 0) {
-        chatsQuery = chatsQuery.not('id', 'in', `(${hiddenChats.map(id => `"${id}"`).join(',')})`);
-      }
-
-      const { data: userChats, error: chatsError } = await chatsQuery;
       if (chatsError) return;
 
       // Calculate total unread count across all chats
@@ -104,71 +105,53 @@ function BottomNav({ activeTab, onTabChange, user }) {
   };
 
   const handleNavClick = (tab) => {
-    // Handle special navigation cases
-    if (tab === 'admin') {
-      navigate('/admin');
-      setShowMoreNav(false);
-      return;
-    }
+    setShowMoreNav(false);
 
-    if (tab === 'training') {
-      navigate('/training');
-      setShowMoreNav(false);
-      return;
-    }
-
-    if (tab === 'schedule') {
-      navigate('/schedule');
-      setShowMoreNav(false);
-      return;
-    }
-
-    if (tab === 'licensing') {
-      navigate('/licensing');
-      setShowMoreNav(false);
-      return;
-    }
-
-    if (tab === 'chat') {
-      navigate('/chat');
-      setShowMoreNav(false);
-      return;
-    }
-
-    if (tab === 'profile') {
-      navigate('/profile');
-      setShowMoreNav(false);
-      return;
-    }
-
-    if (tab === 'calculator') {
-      navigate('/calculator');
-      setShowMoreNav(false);
-      return;
-    }
-
-    if (tab === 'notifications') {
-      navigate('/notifications');
-      setShowMoreNav(false);
-      return;
-    }
-
-    if (tab !== 'more') {
-      setShowMoreNav(false);
-      onTabChange(tab);
+    switch (tab) {
+      case 'home':
+        navigate('/home');
+        break;
+      case 'notifications':
+        navigate('/notifications');
+        break;
+      case 'schedule':
+        navigate('/schedule');
+        break;
+      case 'levelup':
+        navigate('/levelup');
+        break;
+      case 'training':
+        navigate('/training');
+        break;
+      case 'licensing':
+        navigate('/licensing');
+        break;
+      case 'calculator':
+        navigate('/calculator');
+        break;
+      case 'profile':
+        navigate('/profile');
+        break;
+      case 'admin':
+        navigate('/admin');
+        break;
+      case 'chat':
+        navigate('/chat');
+        break;
+      default:
+        break;
     }
   };
 
   const handleMoreClick = () => {
     setShowMoreNav(!showMoreNav);
-    // Don't call onTabChange for 'more' - it should only expand/collapse
   };
 
   return (
     <div className={`bottom-nav ${showMoreNav ? 'expanded' : ''}`}>
       {/* Main Navigation Row */}
       <div className="nav-row main-row">
-        <button 
+        <button
           onClick={() => handleNavClick('home')}
           className={`nav-button ${activeTab === 'home' ? 'active' : ''}`}
         >
@@ -178,7 +161,7 @@ function BottomNav({ activeTab, onTabChange, user }) {
           <span className="nav-label">Home</span>
         </button>
 
-        <button 
+        <button
           onClick={() => handleNavClick('notifications')}
           className={`nav-button ${activeTab === 'notifications' ? 'active' : ''}`}
         >
@@ -200,16 +183,16 @@ function BottomNav({ activeTab, onTabChange, user }) {
         </button>
 
         <button
-          onClick={() => handleNavClick('training')}
-          className={`nav-button ${activeTab === 'training' ? 'active' : ''}`}
+          onClick={() => handleNavClick('levelup')}
+          className={`nav-button ${activeTab === 'levelup' ? 'active' : ''}`}
         >
           <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
           </svg>
-          <span className="nav-label">Training</span>
+          <span className="nav-label">Level Up</span>
         </button>
 
-        <button 
+        <button
           onClick={handleMoreClick}
           className={`nav-button ${showMoreNav ? 'active' : ''}`}
         >
@@ -224,6 +207,16 @@ function BottomNav({ activeTab, onTabChange, user }) {
       {showMoreNav && (
         <div className="nav-row expanded-row">
           <button
+            onClick={() => handleNavClick('training')}
+            className={`nav-button ${activeTab === 'training' ? 'active' : ''}`}
+          >
+            <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            <span className="nav-label">Training</span>
+          </button>
+
+          <button
             onClick={() => handleNavClick('licensing')}
             className={`nav-button ${activeTab === 'licensing' ? 'active' : ''}`}
           >
@@ -233,7 +226,7 @@ function BottomNav({ activeTab, onTabChange, user }) {
             <span className="nav-label">Licensing</span>
           </button>
 
-          <button 
+          <button
             onClick={() => handleNavClick('calculator')}
             className={`nav-button ${activeTab === 'calculator' ? 'active' : ''}`}
           >
@@ -252,7 +245,7 @@ function BottomNav({ activeTab, onTabChange, user }) {
             <span className="nav-label">Calculator</span>
           </button>
 
-          <button 
+          <button
             onClick={() => handleNavClick('profile')}
             className={`nav-button ${activeTab === 'profile' ? 'active' : ''}`}
           >
@@ -264,7 +257,7 @@ function BottomNav({ activeTab, onTabChange, user }) {
 
           {/* Admin button - only visible to admins */}
           {isAdmin ? (
-            <button 
+            <button
               onClick={() => handleNavClick('admin')}
               className={`nav-button ${activeTab === 'admin' ? 'active' : ''}`}
             >

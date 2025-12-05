@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import BottomNav from '../bottomnav/bottomnav';
 import './content.css';
 import '../onboarding/onboarding.css';
 import logo from '../assets/klb-logo.png';
@@ -14,66 +13,38 @@ function Home() {
   const [homeContent, setHomeContent] = useState([]);
   const navigate = useNavigate();
 
+  // App.js handles auth - this component only renders when authenticated
   useEffect(() => {
-    console.log('🏠 HOME.JS LOADED - KLB!');
-    // Check if user is logged in
-    const checkUser = async () => {
+    const loadData = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Error getting session:', error);
-          navigate('/', { replace: true });
-          return;
-        }
+        const { data: { session } } = await supabase.auth.getSession();
 
-        if (!session) {
-          console.log('No session found, redirecting to login');
-          navigate('/', { replace: true });
-          return;
-        }
+        if (session?.user) {
+          setUser(session.user);
 
-        console.log('Session found:', session.user.email);
-        setUser(session.user);
+          // Load user profile
+          const { data: profile } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
 
-        // Try to get user profile from users table
-        const { data: profile, error: profileError } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-
-        if (profile && !profileError) {
-          console.log('Profile found:', profile);
-          setUserProfile(profile);
-        } else {
-          console.log('No profile found or error:', profileError);
+          if (profile) {
+            setUserProfile(profile);
+          }
         }
 
         // Load home content
         loadHomeContent();
-
         setLoading(false);
       } catch (error) {
-        console.error('Unexpected error in checkUser:', error);
-        navigate('/', { replace: true });
+        console.error('Error loading data:', error);
+        setLoading(false);
       }
     };
 
-    checkUser();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
-        navigate('/', { replace: true });
-      } else if (session) {
-        setUser(session.user);
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    loadData();
+  }, []);
 
   const loadHomeContent = async () => {
     try {
@@ -306,12 +277,6 @@ function Home() {
         </div>
       </div>
 
-      {/* Bottom Navigation - Independent */}
-      <BottomNav
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-        user={userProfile}
-      />
     </>
   );
 }

@@ -5,28 +5,25 @@ import './content.css';
 import logo from '../assets/klb-logo.png';
 
 function NewRepStart() {
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [contentItems, setContentItems] = useState([]);
   const [isLoadingContent, setIsLoadingContent] = useState(false);
   const navigate = useNavigate();
 
+  // App.js handles auth - this component only renders when authenticated
   useEffect(() => {
     window.scrollTo(0, 0);
-    checkUser();
+    loadData();
   }, []);
 
-  const checkUser = async () => {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    
-    if (error || !session) {
-      navigate('/', { replace: true });
-      return;
+  const loadData = async () => {
+    try {
+      await loadContent();
+      setLoading(false);
+    } catch (error) {
+      console.error('Error loading data:', error);
+      setLoading(false);
     }
-
-    setUser(session.user);
-    setLoading(false);
-    loadContent();
   };
 
   const loadContent = async () => {

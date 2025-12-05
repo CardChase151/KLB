@@ -216,3 +216,86 @@ Most screens display dynamic content from Supabase, managed via Admin Dashboard.
 - Node 20 required (use `nvm use 20`)
 - Capacitor 6 installed
 - StatusBar plugin: @capacitor/status-bar@6
+- **React 18** required (React 19 has Supabase hanging bug)
+
+---
+
+## Level Up Feature
+
+Gamified training system with levels, content tracking, quizzes, and certificates.
+
+### Database Tables
+
+| Table | Purpose |
+|-------|---------|
+| `levels` | Level definitions (number, name, description) |
+| `level_items` | Content within levels (video, audio, pdf, presentation, quiz) |
+| `quizzes` | Quiz metadata |
+| `quiz_questions` | Questions for quizzes |
+| `quiz_options` | Multiple choice options |
+| `user_level_progress` | User progress per item (%, completion) |
+| `user_level_status` | User status per level (unlocked, completed) |
+| `user_quiz_attempts` | Quiz attempt history |
+| `certificate_settings` | Admin-configurable certificate text |
+| `user_certificates` | Issued certificates |
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/main/levelup.js` | User-facing level screen (climbing visual) |
+| `src/main/LevelItemViewer.js` | Content viewer (video/audio/pdf/quiz) |
+| `src/admin/AdminLevelUp.js` | Admin panel for levels, items, quizzes |
+| `migrations/add_level_up_tables.sql` | Database schema |
+
+### Admin Flow
+
+1. **Admin > Level Up Management** - Main admin screen
+2. **Add Level** - Create levels (Level 1, 2, 3...)
+3. **Click Level > Add Content Item** - Add content within a level
+4. **Content Types**:
+   - **Video/Audio**: Upload file, auto-tracks watch/listen progress
+   - **PDF**: Upload file, tracks pages viewed
+   - **Presentation**: Upload file, tracks slides viewed
+   - **Quiz**: Creates quiz, then "Manage Quiz" to add questions
+5. **Publish toggle** - Draft vs live
+6. **Archive** - Soft delete (completed users can still see)
+
+### Quiz Creation
+
+1. Add content item with type "Quiz"
+2. Click "Manage Quiz" on that item
+3. Add questions with 2-4 multiple choice options
+4. Mark correct answer(s)
+5. Quiz stored in `quizzes`, `quiz_questions`, `quiz_options` tables
+
+### Progress Tracking
+
+| Content Type | How Tracked | Pass Threshold |
+|--------------|-------------|----------------|
+| Video | Watch time % | Admin-set (default 80%) |
+| Audio | Listen time % | Admin-set (default 80%) |
+| PDF | Pages viewed / total | Admin-set (default 80%) |
+| Presentation | Slides viewed / total | Admin-set (default 80%) |
+| Quiz | Score % | Admin-set (default 80%) |
+
+### Level Unlock Logic
+
+- Level 1 always unlocked
+- Complete all items in level (meet pass threshold) = auto-unlock next level
+- All levels complete = certificate available
+
+### Certificate
+
+- Admin configures description text in "Certificate Settings"
+- User downloads PNG certificate when all levels complete
+- Certificate stored in `user_certificates` with unique ID
+
+### Storage Bucket
+
+- **Bucket**: `level-files` (for video/audio/pdf/presentation uploads)
+- **Max size**: 50MB per file
+
+### User Reset
+
+Admin can reset user progress via "User Progress" in admin panel.

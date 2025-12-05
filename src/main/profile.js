@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import BottomNav from '../bottomnav/bottomnav';
 import './content.css';
 import '../onboarding/onboarding.css';
 
@@ -12,54 +11,40 @@ function Profile() {
   const [activeTab, setActiveTab] = useState('profile');
   const navigate = useNavigate();
 
+  // App.js handles auth - this component only renders when authenticated
   useEffect(() => {
-    checkUser();
-  }, [navigate]);
+    loadData();
+  }, []);
 
-  const checkUser = async () => {
+  const loadData = async () => {
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error('Error getting session:', error);
-        navigate('/', { replace: true });
-        return;
-      }
+      const { data: { session } } = await supabase.auth.getSession();
 
-      if (!session) {
-        console.log('No session found, redirecting to login');
-        navigate('/', { replace: true });
-        return;
-      }
+      if (session?.user) {
+        setUser(session.user);
 
-      console.log('Session found:', session.user.email);
-      setUser(session.user);
+        const { data: profile } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
 
-      // Try to get user profile from users table
-      const { data: profile, error: profileError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
-
-      if (profile && !profileError) {
-        console.log('Profile found:', profile);
-        setUserProfile(profile);
-      } else {
-        console.log('No profile found or error:', profileError);
+        if (profile) {
+          setUserProfile(profile);
+        }
       }
 
       setLoading(false);
     } catch (error) {
-      console.error('Unexpected error in checkUser:', error);
-      navigate('/', { replace: true });
+      console.error('Error loading data:', error);
+      setLoading(false);
     }
   };
 
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
-      navigate('/', { replace: true });
+      // App.js will handle redirect on auth state change
     } catch (error) {
       console.error('Error signing out:', error);
       alert('Error signing out');
@@ -273,12 +258,6 @@ function Profile() {
         </div>
       </div>
 
-      {/* Bottom Navigation */}
-      <BottomNav
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-        user={userProfile}
-      />
     </div>
   );
 }

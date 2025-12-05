@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import ImageUpload from './ImageUpload';
-import BottomNav from '../bottomnav/bottomnav';
 import './admin.css';
 import '../main/content.css';
 import klbLogo from '../assets/klb-logo.png';
@@ -190,7 +189,7 @@ function Admin2() {
     try {
       const { data, error } = await supabase
         .from('users')
-        .select('id, first_name, last_name, email, can_create_chats, can_send_messages, team_inspire_enabled')
+        .select('id, first_name, last_name, email, can_create_chats, can_send_messages')
         .order('first_name', { ascending: true });
 
       if (error) throw error;
@@ -381,9 +380,9 @@ function Admin2() {
     try {
       let targetTable;
       if (isCombinedMode && viewMode === 'categories') {
-        targetTable = 'training_categories';
+        targetTable = isCombinedTraining ? 'training_categories' : 'licensing_categories';
       } else if (isCombinedMode && viewMode === 'content') {
-        targetTable = 'training_content';
+        targetTable = isCombinedTraining ? 'training_content' : 'licensing_content';
       } else {
         targetTable = tableName;
       }
@@ -864,12 +863,6 @@ function Admin2() {
           </div>
         )}
 
-        {/* Bottom Navigation */}
-        <BottomNav
-          activeTab="admin"
-          onTabChange={handleNavTabChange}
-          user={userProfile}
-        />
       </div>
     );
   }
@@ -1274,14 +1267,6 @@ function Admin2() {
                       <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <input
                           type="checkbox"
-                          checked={user.team_inspire_enabled}
-                          onChange={() => toggleUserPermission(user.id, 'team_inspire_enabled')}
-                        />
-                        KLB Chat
-                      </label>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <input
-                          type="checkbox"
                           checked={user.can_create_chats}
                           onChange={() => toggleUserPermission(user.id, 'can_create_chats')}
                         />
@@ -1418,12 +1403,6 @@ function Admin2() {
         </div>
       </div>
 
-      {/* Bottom Navigation */}
-      <BottomNav
-        activeTab="admin"
-        onTabChange={handleNavTabChange}
-        user={userProfile}
-      />
     </div>
   );
 }

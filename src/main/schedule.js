@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import BottomNav from '../bottomnav/bottomnav';
 import './content.css';
 import logo from '../assets/klb-logo.png';
 
 function Schedule() {
-  const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [scheduleItems, setScheduleItems] = useState([]);
@@ -14,34 +12,34 @@ function Schedule() {
   const [activeTab, setActiveTab] = useState('schedule');
   const navigate = useNavigate();
 
+  // App.js handles auth - this component only renders when authenticated
   useEffect(() => {
     window.scrollTo(0, 0);
-    checkUser();
-    loadScheduleContent();
+    loadData();
   }, []);
 
-  const checkUser = async () => {
-    const { data: { session }, error } = await supabase.auth.getSession();
+  const loadData = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
 
-    if (error || !session) {
-      navigate('/', { replace: true });
-      return;
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile) {
+          setUserProfile(profile);
+        }
+      }
+
+      await loadScheduleContent();
+      setLoading(false);
+    } catch (error) {
+      console.error('Error loading data:', error);
+      setLoading(false);
     }
-
-    setUser(session.user);
-
-    // Get user profile
-    const { data: profile } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', session.user.id)
-      .single();
-
-    if (profile) {
-      setUserProfile(profile);
-    }
-
-    setLoading(false);
   };
 
   const loadScheduleContent = async () => {
@@ -309,12 +307,6 @@ function Schedule() {
         </div>
       </div>
 
-      {/* Bottom Navigation */}
-      <BottomNav
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-        user={userProfile}
-      />
     </div>
   );
 }

@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import BottomNav from '../bottomnav/bottomnav';
 import './content.css';
 
 function Calculator() {
-  const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [position, setPosition] = useState('');
@@ -16,33 +14,33 @@ function Calculator() {
   const [timePeriod, setTimePeriod] = useState('month');
   const navigate = useNavigate();
 
+  // App.js handles auth - this component only renders when authenticated
   useEffect(() => {
     window.scrollTo(0, 0);
-    checkUser();
+    loadData();
   }, []);
 
-  const checkUser = async () => {
-    const { data: { session }, error } = await supabase.auth.getSession();
+  const loadData = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
 
-    if (error || !session) {
-      navigate('/', { replace: true });
-      return;
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile) {
+          setUserProfile(profile);
+        }
+      }
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error loading data:', error);
+      setLoading(false);
     }
-
-    setUser(session.user);
-
-    // Get user profile
-    const { data: profile } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', session.user.id)
-      .single();
-
-    if (profile) {
-      setUserProfile(profile);
-    }
-
-    setLoading(false);
   };
 
   const handleNavTabChange = (tab) => {
@@ -663,12 +661,6 @@ function Calculator() {
         </div>
       </div>
 
-      {/* Bottom Navigation */}
-      <BottomNav
-        activeTab="calculator"
-        onTabChange={handleNavTabChange}
-        user={userProfile}
-      />
     </div>
   );
 }

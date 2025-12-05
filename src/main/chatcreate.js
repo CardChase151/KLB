@@ -4,6 +4,9 @@ import { supabase } from '../supabaseClient';
 import './chatcreate.css';
 import '../main/content.css';
 
+// CHAT_ENABLED: Set to true when chats/chat_participants/chat_messages tables exist in Supabase
+const CHAT_ENABLED = false;
+
 function ChatCreate() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,13 +21,18 @@ function ChatCreate() {
   const [userPermissions, setUserPermissions] = useState({});
   const navigate = useNavigate();
 
+  // App.js handles auth - this component only renders when authenticated
   useEffect(() => {
     window.scrollTo(0, 0);
-    checkUser();
+    if (CHAT_ENABLED) {
+      loadInitialData();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    if (user) {
+    if (CHAT_ENABLED && user) {
       loadUserPermissions();
       loadTeamMembers();
     }
@@ -34,16 +42,19 @@ function ChatCreate() {
     filterUsers();
   }, [searchQuery, allUsers]);
 
-  const checkUser = async () => {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    
-    if (error || !session) {
-      navigate('/', { replace: true });
-      return;
-    }
+  const loadInitialData = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
 
-    setUser(session.user);
-    setLoading(false);
+      if (session?.user) {
+        setUser(session.user);
+      }
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error loading data:', error);
+      setLoading(false);
+    }
   };
 
   const loadUserPermissions = async () => {

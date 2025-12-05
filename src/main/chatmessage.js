@@ -3,6 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import './chatmessage.css';
 
+// CHAT_ENABLED: Set to true when chats/chat_participants/chat_messages tables exist in Supabase
+const CHAT_ENABLED = false;
+
 function ChatMessage() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -14,35 +17,43 @@ function ChatMessage() {
   const { chatId } = useParams();
   const navigate = useNavigate();
 
+  // App.js handles auth - this component only renders when authenticated
   useEffect(() => {
-    checkUser();
+    if (CHAT_ENABLED) {
+      loadInitialData();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    if (user && chatId) {
+    if (CHAT_ENABLED && user && chatId) {
       loadUserPermissions();
       loadChatData();
       loadMessages();
     }
   }, [user, chatId]);
 
-  const checkUser = async () => {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    
-    if (error || !session) {
-      navigate('/', { replace: true });
-      return;
-    }
+  const loadInitialData = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
 
-    setUser(session.user);
-    setLoading(false);
+      if (session?.user) {
+        setUser(session.user);
+      }
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error loading data:', error);
+      setLoading(false);
+    }
   };
 
   const loadUserPermissions = async () => {
     try {
       const { data: userData, error } = await supabase
         .from('users')
-        .select('can_send_messages, hidden_chats')
+        .select('can_send_messages')
         .eq('id', user.id)
         .single();
 
@@ -51,8 +62,7 @@ function ChatMessage() {
     } catch (error) {
       console.error('Error loading user permissions:', error);
       setUserPermissions({
-        can_send_messages: true,
-        hidden_chats: []
+        can_send_messages: true
       });
     }
   };

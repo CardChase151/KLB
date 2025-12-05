@@ -4,6 +4,9 @@ import { supabase } from '../supabaseClient';
 import './chatdash.css';
 import '../main/content.css';
 
+// CHAT_ENABLED: Set to true when chats/chat_participants/chat_messages tables exist in Supabase
+const CHAT_ENABLED = false;
+
 function ChatDash() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -20,19 +23,24 @@ function ChatDash() {
 
   const filterOptions = ['All', 'Individual', 'Groups'];
 
+  // App.js handles auth - this component only renders when authenticated
   useEffect(() => {
     window.scrollTo(0, 0);
-    checkUser();
+    if (CHAT_ENABLED) {
+      loadInitialData();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    if (user) {
+    if (CHAT_ENABLED && user) {
       loadUserPermissions();
     }
   }, [user]);
 
   useEffect(() => {
-    if (user && userPermissions && Object.keys(userPermissions).length > 0) {
+    if (CHAT_ENABLED && user && userPermissions && Object.keys(userPermissions).length > 0) {
       loadUserChats();
     }
   }, [user, userPermissions]);
@@ -41,16 +49,19 @@ function ChatDash() {
     applyFilters();
   }, [allChats, activeFilter, searchQuery, searchMode]);
 
-  const checkUser = async () => {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    
-    if (error || !session) {
-      navigate('/', { replace: true });
-      return;
-    }
+  const loadInitialData = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
 
-    setUser(session.user);
-    setLoading(false);
+      if (session?.user) {
+        setUser(session.user);
+      }
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error loading data:', error);
+      setLoading(false);
+    }
   };
 
   const loadUserPermissions = async () => {
@@ -58,12 +69,12 @@ function ChatDash() {
       console.log('No user ID available for permissions');
       return;
     }
-    
+
     try {
       console.log('Loading permissions for user:', user.id);
       const { data: userData, error } = await supabase
         .from('users')
-        .select('team_inspire_enabled, can_create_chats, can_send_messages, hidden_chats, archived_chats')
+        .select('can_create_chats, can_send_messages')
         .eq('id', user.id)
         .single();
 
@@ -74,11 +85,8 @@ function ChatDash() {
       console.error('Error loading user permissions:', error);
       // Default permissions if error
       setUserPermissions({
-        team_inspire_enabled: true,
         can_create_chats: true,
-        can_send_messages: true,
-        hidden_chats: [],
-        archived_chats: []
+        can_send_messages: true
       });
     }
   };
@@ -115,10 +123,7 @@ function ChatDash() {
   const loadUserChats = async () => {
     setIsLoadingChats(true);
     try {
-      // Get user's chats, excluding hidden ones
-      const hiddenChats = userPermissions.hidden_chats || [];
-      
-      let chatsQuery = supabase
+      const { data: userChats, error } = await supabase
         .from('chats')
         .select(`
           *,
@@ -131,23 +136,6 @@ function ChatDash() {
         .eq('chat_participants.user_id', user.id)
         .eq('chat_participants.is_active', true)
         .eq('is_active', true);
-
-      // Exclude KLB chat if user doesn't have access
-      console.log('User permissions:', userPermissions);
-      console.log('KLB enabled:', userPermissions.team_inspire_enabled);
-      if (!userPermissions.team_inspire_enabled) {
-        console.log('Filtering out KLB chat');
-        chatsQuery = chatsQuery.neq('type', 'mandatory');
-      } else {
-        console.log('Keeping KLB chat');
-      }
-
-      // Only filter hidden chats if there are any
-      if (hiddenChats.length > 0) {
-        chatsQuery = chatsQuery.not('id', 'in', `(${hiddenChats.map(id => `"${id}"`).join(',')})`);
-      }
-
-      const { data: userChats, error } = await chatsQuery;
 
       if (error) throw error;
 

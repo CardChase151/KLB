@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import './onboarding.css';
@@ -9,13 +9,7 @@ function Login() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [isCheckingSession, setIsCheckingSession] = useState(true);
   const navigate = useNavigate();
-
-  // App.js now handles session checking and redirects
-  useEffect(() => {
-    setIsCheckingSession(false);
-  }, []);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -24,10 +18,9 @@ function Login() {
     }
 
     setIsLoggingIn(true);
-    const startTime = Date.now();
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email: email,
         password: password
       });
@@ -39,13 +32,7 @@ function Login() {
         return;
       }
 
-      const elapsed = Date.now() - startTime;
-      const remainingTime = Math.max(0, 2000 - elapsed);
-
-      await new Promise(resolve => setTimeout(resolve, remainingTime));
-
-      console.log('Login successful:', data);
-      // App.js onAuthStateChange will handle profile check and redirect
+      // App.js onAuthStateChange handles redirect automatically
 
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -61,16 +48,6 @@ function Login() {
   const goToForgotPassword = () => {
     navigate('/forgot-password');
   };
-
-  // Show loading while checking session
-  if (isCheckingSession) {
-    return (
-      <div className="login-container">
-        <img src={logo} alt="KLB" className="login-logo" />
-        <div className="login-spinner"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="login-container">

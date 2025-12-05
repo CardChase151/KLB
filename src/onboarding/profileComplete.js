@@ -1,31 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import logo from '../assets/klb-logo.png';
 import './onboarding.css';
 
 function ProfileComplete({ onComplete }) {
   const [user, setUser] = useState(null);
-  const [step, setStep] = useState('welcome'); // welcome, name-input, clarify-first, clarify-last, complete
+  const [step, setStep] = useState('welcome'); // welcome, clarify-first, clarify-last, clarify-first-input, confirm
   const [fullName, setFullName] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [ambiguousName, setAmbiguousName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    checkUser();
+    loadUser();
   }, []);
 
-  const checkUser = async () => {
-    const { data: { session }, error } = await supabase.auth.getSession();
-
-    if (error || !session) {
-      navigate('/', { replace: true });
-      return;
+  const loadUser = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      setUser(session.user);
     }
-
-    setUser(session.user);
   };
 
   const parseFullName = (name) => {
@@ -37,12 +32,10 @@ function ProfileComplete({ onComplete }) {
     }
 
     if (parts.length === 1) {
-      // Single name - need to ask if it's first or last
       return { needsClarification: true, type: 'single', name: parts[0] };
     }
 
     if (parts.length === 2) {
-      // Perfect - first and last
       return {
         needsClarification: false,
         firstName: parts[0],
@@ -62,7 +55,7 @@ function ProfileComplete({ onComplete }) {
     const result = parseFullName(fullName);
 
     if (result.type === 'empty') {
-      return; // Don't proceed if empty
+      return;
     }
 
     if (result.needsClarification) {
@@ -71,7 +64,7 @@ function ProfileComplete({ onComplete }) {
     } else {
       setFirstName(result.firstName);
       setLastName(result.lastName);
-      setStep('complete');
+      setStep('confirm');
     }
   };
 
@@ -87,18 +80,27 @@ function ProfileComplete({ onComplete }) {
 
   const handleFirstNameInput = () => {
     if (firstName.trim()) {
-      setStep('complete');
+      setStep('confirm');
     }
   };
 
   const handleLastNameInput = () => {
     if (lastName.trim()) {
-      setStep('complete');
+      setStep('confirm');
     }
   };
 
+  const handleBack = () => {
+    // Reset and go back to welcome
+    setFullName('');
+    setFirstName('');
+    setLastName('');
+    setAmbiguousName('');
+    setStep('welcome');
+  };
+
   const handleComplete = async () => {
-    if (!firstName.trim() || !lastName.trim()) return;
+    if (!firstName.trim() || !lastName.trim() || !user) return;
 
     setIsSubmitting(true);
 
@@ -114,11 +116,8 @@ function ProfileComplete({ onComplete }) {
 
       if (error) throw error;
 
-      // Refresh profile in App.js, which will trigger redirect to /home
       if (onComplete) {
         await onComplete();
-      } else {
-        navigate('/home', { replace: true });
       }
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -137,28 +136,23 @@ function ProfileComplete({ onComplete }) {
     <div className="profile-complete-container">
       {step === 'welcome' && (
         <div className="profile-step">
-          <div className="profile-welcome-icon">
-            <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h1 className="profile-title">Welcome to KLB!</h1>
-          <p className="profile-subtitle">We're so happy you're part of the team.</p>
-          <p className="profile-text">Let's get to know you a little better.</p>
-
-          <button
-            className="profile-primary-button"
-            onClick={() => setStep('name-input')}
-          >
-            Let's Go
-          </button>
-        </div>
-      )}
-
-      {step === 'name-input' && (
-        <div className="profile-step">
-          <h1 className="profile-title">Introduce yourself...</h1>
-          <p className="profile-subtitle">What's your name?</p>
+          <img
+            src={logo}
+            alt="Kingdom Legacy Builders"
+            style={{
+              width: '120px',
+              height: '120px',
+              objectFit: 'contain',
+              marginBottom: '24px'
+            }}
+          />
+          <h1 className="profile-title">Welcome to Kingdom Legacy Builders</h1>
+          <p className="profile-subtitle">
+            We're excited to have you join the team. Before we get started, we'd like to get to know you.
+          </p>
+          <p className="profile-text" style={{ marginBottom: '24px' }}>
+            What's your name?
+          </p>
 
           <input
             className="profile-input"
@@ -203,6 +197,13 @@ function ProfileComplete({ onComplete }) {
               Last Name
             </button>
           </div>
+
+          <button
+            className="profile-back-button"
+            onClick={handleBack}
+          >
+            Back
+          </button>
         </div>
       )}
 
@@ -230,6 +231,13 @@ function ProfileComplete({ onComplete }) {
             disabled={!firstName.trim()}
           >
             Continue
+          </button>
+
+          <button
+            className="profile-back-button"
+            onClick={handleBack}
+          >
+            Back
           </button>
         </div>
       )}
@@ -259,21 +267,35 @@ function ProfileComplete({ onComplete }) {
           >
             Continue
           </button>
+
+          <button
+            className="profile-back-button"
+            onClick={handleBack}
+          >
+            Back
+          </button>
         </div>
       )}
 
-      {step === 'complete' && (
+      {step === 'confirm' && (
         <div className="profile-step">
-          <div className="profile-welcome-icon">
-            <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h1 className="profile-title">Welcome, {firstName}!</h1>
+          <img
+            src={logo}
+            alt="Kingdom Legacy Builders"
+            style={{
+              width: '80px',
+              height: '80px',
+              objectFit: 'contain',
+              marginBottom: '24px'
+            }}
+          />
+          <h1 className="profile-title">Just to make sure...</h1>
           <p className="profile-subtitle">
-            Great to have you on the team, {firstName} {lastName}.
+            We got your name correct?
           </p>
-          <p className="profile-text">You're all set to get started.</p>
+          <p className="profile-name-confirm">
+            {firstName} {lastName}
+          </p>
 
           <button
             className="profile-primary-button"
@@ -286,8 +308,15 @@ function ProfileComplete({ onComplete }) {
                 Saving...
               </div>
             ) : (
-              "Let's Go!"
+              "That's Me!"
             )}
+          </button>
+
+          <button
+            className="profile-back-button"
+            onClick={handleBack}
+          >
+            No, let me fix it
           </button>
         </div>
       )}
