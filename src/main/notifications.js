@@ -161,7 +161,7 @@ function Notifications() {
             textAlign: 'center'
           }}>Announcements and updates</p>
 
-          {isLoadingNotifications ? (
+          {loading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
               <div className="spinner"></div>
             </div>

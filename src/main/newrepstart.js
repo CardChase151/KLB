@@ -151,7 +151,7 @@ function NewRepStart() {
             textAlign: 'center'
           }}>Essential materials and training for new representatives</p>
 
-          {isLoadingContent ? (
+          {loading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
               <div className="spinner"></div>
             </div>
