@@ -260,34 +260,39 @@ function Home() {
       }}></div>
 
       {/* 10 Day Launch Banner - Below dynamic bar */}
-      <div onClick={handleNewRepStart} style={{
-        backgroundColor: '#1a1a1a',
-        color: '#ffffff',
-        padding: '16px 20px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        width: '95%',
-        margin: '0 auto 0 auto',
-        fontWeight: '700',
-        fontSize: '1rem',
-        cursor: 'pointer',
-        borderRadius: '8px',
+      <div className="desktop-header-wrapper" style={{
         position: 'fixed',
         top: '60px',
-        left: '50%',
-        transform: 'translateX(-50%)',
+        left: '0',
+        right: '0',
         zIndex: '1000',
-        border: '1px solid #333'
+        padding: '12px 20px',
+        backgroundColor: '#0a0a0a'
       }}>
-        <span>10 DAY LAUNCH</span>
-        <span>→</span>
+        <div onClick={handleNewRepStart} style={{
+          backgroundColor: '#1a1a1a',
+          color: '#ffffff',
+          padding: '16px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          width: '100%',
+          fontWeight: '700',
+          fontSize: '1rem',
+          cursor: 'pointer',
+          borderRadius: '8px',
+          border: '1px solid #333',
+          boxSizing: 'border-box'
+        }}>
+          <span>10 DAY LAUNCH</span>
+          <span>→</span>
+        </div>
       </div>
 
       {/* Home Content Container - Scrollable content area */}
       <div style={{
         position: 'fixed',
-        top: '120px',
+        top: 'calc(60px + 76px)',
         left: '0',
         right: '0',
         bottom: '100px',
@@ -295,7 +300,7 @@ function Home() {
         overflowX: 'hidden',
         touchAction: 'pan-y'
       }}>
-        <div className="app-container" style={{marginTop: '0', minHeight: '100%', paddingBottom: '20px'}}>
+        <div className="app-container desktop-content-wrapper" style={{marginTop: '0', minHeight: '100%', paddingBottom: '20px'}}>
           {renderContent()}
 
         </div>

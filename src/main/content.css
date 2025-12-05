@@ -26,6 +26,24 @@
   }
 }
 
+/* ===========================================
+   DESKTOP HEADER WRAPPER
+   Centers header on desktop screens
+   =========================================== */
+
+.desktop-header-wrapper {
+  width: 100%;
+}
+
+@media (min-width: 769px) {
+  .desktop-header-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+    border-left: 1px solid #222;
+    border-right: 1px solid #222;
+  }
+}
+
 /* Ensure full black background + prevent horizontal scroll */
 html, body {
     background-color: #000000;

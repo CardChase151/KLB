@@ -77,7 +77,7 @@ function NewRepStart() {
       touchAction: 'none'
     }}>
       {/* Header */}
-      <div style={{
+      <div className="desktop-header-wrapper" style={{
         display: 'flex',
         alignItems: 'center',
         padding: '12px 16px',

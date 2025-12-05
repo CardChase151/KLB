@@ -115,7 +115,7 @@ function Notifications() {
       backgroundColor: '#0a0a0a'
     }}>
       {/* Header */}
-      <div style={{
+      <div className="desktop-header-wrapper" style={{
         display: 'flex',
         alignItems: 'center',
         padding: '12px 16px',
