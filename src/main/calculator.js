@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../supabaseClient';
+import { useAuth } from '../context/AuthContext';
 import './content.css';
 
 function Calculator() {
-  const [userProfile, setUserProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { userProfile } = useAuth();
   const [position, setPosition] = useState('');
   const [section, setSection] = useState('');
   const [solveFor, setSolveFor] = useState('');
@@ -14,34 +13,9 @@ function Calculator() {
   const [timePeriod, setTimePeriod] = useState('month');
   const navigate = useNavigate();
 
-  // App.js handles auth - this component only renders when authenticated
   useEffect(() => {
     window.scrollTo(0, 0);
-    loadData();
   }, []);
-
-  const loadData = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-
-        if (profile) {
-          setUserProfile(profile);
-        }
-      }
-
-      setLoading(false);
-    } catch (error) {
-      console.error('Error loading data:', error);
-      setLoading(false);
-    }
-  };
 
   const handleNavTabChange = (tab) => {
     if (tab === 'home') {
@@ -199,14 +173,6 @@ function Calculator() {
 
   const productResults = section === 'product' ? calculateProduct() : null;
   const buildingResults = section === 'building' ? calculateBuilding() : null;
-
-  if (loading) {
-    return (
-      <div className="app-container">
-        <div className="spinner"></div>
-      </div>
-    );
-  }
 
   return (
     <div style={{

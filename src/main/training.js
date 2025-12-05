@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import { useAuth } from '../context/AuthContext';
+import { withTimeoutAndRefresh } from '../utils/supabaseHelpers';
 import './content.css';
 import logo from '../assets/klb-logo.png';
 
 function Training() {
-  const [userProfile, setUserProfile] = useState(null);
+  const { userProfile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -13,32 +15,26 @@ function Training() {
   const [isLoadingContent, setIsLoadingContent] = useState(false);
   const navigate = useNavigate();
 
-  // App.js handles auth - this component only renders when authenticated
   useEffect(() => {
     window.scrollTo(0, 0);
-    loadData();
+    loadCategories();
   }, []);
 
-  const loadData = async () => {
+  const loadCategories = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('users')
+      const { data, error } = await withTimeoutAndRefresh(
+        supabase
+          .from('training_categories')
           .select('*')
-          .eq('id', session.user.id)
-          .single();
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true })
+      );
 
-        if (profile) {
-          setUserProfile(profile);
-        }
-      }
-
-      await loadCategories();
-      setLoading(false);
+      if (error) throw error;
+      setCategories(data || []);
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error('Error loading categories:', error);
+    } finally {
       setLoading(false);
     }
   };
@@ -57,30 +53,17 @@ function Training() {
     }
   };
 
-  const loadCategories = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('training_categories')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true });
-
-      if (error) throw error;
-      setCategories(data || []);
-    } catch (error) {
-      console.error('Error loading categories:', error);
-    }
-  };
-
   const loadCategoryContent = async (categoryName) => {
     setIsLoadingContent(true);
     try {
-      const { data, error } = await supabase
-        .from('training_content')
-        .select('*')
-        .eq('category', categoryName)
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true });
+      const { data, error } = await withTimeoutAndRefresh(
+        supabase
+          .from('training_content')
+          .select('*')
+          .eq('category', categoryName)
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true })
+      );
 
       if (error) throw error;
       setContentItems(data || []);

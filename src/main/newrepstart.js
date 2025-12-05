@@ -1,47 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import { withTimeoutAndRefresh } from '../utils/supabaseHelpers';
 import './content.css';
 import logo from '../assets/klb-logo.png';
 
 function NewRepStart() {
   const [loading, setLoading] = useState(true);
   const [contentItems, setContentItems] = useState([]);
-  const [isLoadingContent, setIsLoadingContent] = useState(false);
   const navigate = useNavigate();
 
-  // App.js handles auth - this component only renders when authenticated
   useEffect(() => {
     window.scrollTo(0, 0);
-    loadData();
+    loadContent();
   }, []);
 
-  const loadData = async () => {
-    try {
-      await loadContent();
-      setLoading(false);
-    } catch (error) {
-      console.error('Error loading data:', error);
-      setLoading(false);
-    }
-  };
-
   const loadContent = async () => {
-    setIsLoadingContent(true);
     try {
-      const { data, error } = await supabase
-        .from('newrepstart_content')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true });
+      const { data, error } = await withTimeoutAndRefresh(
+        supabase
+          .from('newrepstart_content')
+          .select('*')
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true })
+      );
 
       if (error) throw error;
       setContentItems(data || []);
     } catch (error) {
       console.error('Error loading content:', error);
-      alert('Error loading content: ' + error.message);
     } finally {
-      setIsLoadingContent(false);
+      setLoading(false);
     }
   };
 

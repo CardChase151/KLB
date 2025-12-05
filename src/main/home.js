@@ -1,63 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import { useAuth } from '../context/AuthContext';
+import { withTimeoutAndRefresh } from '../utils/supabaseHelpers';
 import './content.css';
 import '../onboarding/onboarding.css';
 import logo from '../assets/klb-logo.png';
 
 function Home() {
-  const [user, setUser] = useState(null);
-  const [userProfile, setUserProfile] = useState(null);
+  const { user, userProfile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('home');
   const [homeContent, setHomeContent] = useState([]);
   const navigate = useNavigate();
 
-  // App.js handles auth - this component only renders when authenticated
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-
-        if (session?.user) {
-          setUser(session.user);
-
-          // Load user profile
-          const { data: profile } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-
-          if (profile) {
-            setUserProfile(profile);
-          }
-        }
-
-        // Load home content
-        loadHomeContent();
-        setLoading(false);
-      } catch (error) {
-        console.error('Error loading data:', error);
-        setLoading(false);
-      }
-    };
-
-    loadData();
+    loadHomeContent();
   }, []);
 
   const loadHomeContent = async () => {
     try {
-      const { data, error } = await supabase
-        .from('home_content')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true });
+      const { data, error } = await withTimeoutAndRefresh(
+        supabase
+          .from('home_content')
+          .select('*')
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true })
+      );
 
       if (error) throw error;
       setHomeContent(data || []);
     } catch (error) {
       console.error('Error loading home content:', error);
+    } finally {
+      setLoading(false);
     }
   };
 

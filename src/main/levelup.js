@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import { useAuth } from '../context/AuthContext';
+import { withTimeoutAndRefresh } from '../utils/supabaseHelpers';
 import html2canvas from 'html2canvas';
 import './content.css';
 import logo from '../assets/klb-logo.png';
 
 function LevelUp() {
-  const [userProfile, setUserProfile] = useState(null);
+  const { userProfile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [levels, setLevels] = useState([]);
   const [userLevelStatus, setUserLevelStatus] = useState({});
@@ -23,37 +25,24 @@ function LevelUp() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    loadData();
-  }, []);
+    if (userProfile?.id) {
+      loadData();
+    }
+  }, [userProfile]);
 
   const loadData = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      // Load levels
+      await loadLevels();
 
-      if (session?.user) {
-        // Load user profile
-        const { data: profile } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
+      // Load user's level status
+      await loadUserLevelStatus(userProfile.id);
 
-        if (profile) {
-          setUserProfile(profile);
-        }
+      // Load certificate settings
+      await loadCertificateSettings();
 
-        // Load levels
-        await loadLevels();
-
-        // Load user's level status
-        await loadUserLevelStatus(session.user.id);
-
-        // Load certificate settings
-        await loadCertificateSettings();
-
-        // Check for existing certificate
-        await loadUserCertificate(session.user.id);
-      }
+      // Check for existing certificate
+      await loadUserCertificate(userProfile.id);
 
       setLoading(false);
     } catch (error) {
@@ -64,11 +53,13 @@ function LevelUp() {
 
   const loadLevels = async () => {
     try {
-      const { data, error } = await supabase
-        .from('levels')
-        .select('*')
-        .eq('is_active', true)
-        .order('level_number', { ascending: true });
+      const { data, error } = await withTimeoutAndRefresh(
+        supabase
+          .from('levels')
+          .select('*')
+          .eq('is_active', true)
+          .order('level_number', { ascending: true })
+      );
 
       if (error) throw error;
       setLevels(data || []);

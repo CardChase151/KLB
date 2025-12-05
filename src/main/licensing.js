@@ -1,82 +1,63 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import { useAuth } from '../context/AuthContext';
+import { withTimeoutAndRefresh } from '../utils/supabaseHelpers';
 import './content.css';
 import logo from '../assets/klb-logo.png';
 
 function Licensing() {
-  const [userProfile, setUserProfile] = useState(null);
+  const { userProfile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('life'); // 'life' or 'securities'
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [contentItems, setContentItems] = useState([]);
   const [isLoadingContent, setIsLoadingContent] = useState(false);
-  const [isReady, setIsReady] = useState(false);
   const navigate = useNavigate();
 
-  // App.js handles auth - this component only renders when authenticated
   useEffect(() => {
     window.scrollTo(0, 0);
-    loadData();
+    loadCategories();
   }, []);
 
   useEffect(() => {
-    if (isReady) {
+    if (!loading) {
       loadCategories();
     }
-  }, [activeTab, isReady]);
-
-  const loadData = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-
-        if (profile) {
-          setUserProfile(profile);
-        }
-      }
-
-      setLoading(false);
-      setIsReady(true);
-    } catch (error) {
-      console.error('Error loading data:', error);
-      setLoading(false);
-    }
-  };
+  }, [activeTab]);
 
   const loadCategories = async () => {
     try {
-      // Load categories filtered by license type
-      const { data, error } = await supabase
-        .from('licensing_categories')
-        .select('*')
-        .eq('license_type', activeTab)
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true });
+      const { data, error } = await withTimeoutAndRefresh(
+        supabase
+          .from('licensing_categories')
+          .select('*')
+          .eq('license_type', activeTab)
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true })
+      );
 
       if (error) throw error;
       setCategories(data || []);
     } catch (error) {
       console.error('Error loading categories:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const loadCategoryContent = async (categoryName) => {
     setIsLoadingContent(true);
     try {
-      const { data, error } = await supabase
-        .from('licensing_content')
-        .select('*')
-        .eq('category', categoryName)
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true });
+      const { data, error } = await withTimeoutAndRefresh(
+        supabase
+          .from('licensing_content')
+          .select('*')
+          .eq('category', categoryName)
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true })
+      );
 
       if (error) throw error;
       setContentItems(data || []);

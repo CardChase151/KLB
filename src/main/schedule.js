@@ -1,80 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import { useAuth } from '../context/AuthContext';
+import { withTimeoutAndRefresh } from '../utils/supabaseHelpers';
 import './content.css';
-import logo from '../assets/klb-logo.png';
 
 function Schedule() {
-  const [userProfile, setUserProfile] = useState(null);
+  const { userProfile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [scheduleItems, setScheduleItems] = useState([]);
-  const [isLoadingSchedule, setIsLoadingSchedule] = useState(false);
-  const [activeTab, setActiveTab] = useState('schedule');
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // App.js handles auth - this component only renders when authenticated
   useEffect(() => {
     window.scrollTo(0, 0);
-    loadData();
+    loadScheduleContent();
   }, []);
 
-  const loadData = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-
-        if (profile) {
-          setUserProfile(profile);
-        }
-      }
-
-      await loadScheduleContent();
-      setLoading(false);
-    } catch (error) {
-      console.error('Error loading data:', error);
-      setLoading(false);
-    }
-  };
-
   const loadScheduleContent = async () => {
-    setIsLoadingSchedule(true);
     try {
-      const { data, error } = await supabase
-        .from('schedule_content')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true });
+      const { data, error } = await withTimeoutAndRefresh(
+        supabase
+          .from('schedule_content')
+          .select('*')
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true })
+      );
 
       if (error) throw error;
       setScheduleItems(data || []);
-    } catch (error) {
-      console.error('Error loading schedule:', error);
+    } catch (err) {
+      console.error('Error loading schedule:', err);
+      setError('Failed to load. Tap to retry.');
     } finally {
-      setIsLoadingSchedule(false);
+      setLoading(false);
     }
   };
 
   const handleBackToHome = () => {
     navigate('/home');
-  };
-
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    if (tab === 'home') {
-      navigate('/home');
-    } else if (tab === 'training') {
-      navigate('/training');
-    } else if (tab === 'licensing') {
-      navigate('/licensing');
-    } else if (tab === 'calculator') {
-      navigate('/calculator');
-    }
   };
 
   const formatTime = (timeString) => {
@@ -178,9 +142,23 @@ function Schedule() {
             textAlign: 'center'
           }}>Weekly meetings and training sessions</p>
 
-          {isLoadingSchedule ? (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-              <div className="spinner"></div>
+          {error ? (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#ff6b6b' }}>
+              <p>{error}</p>
+              <button
+                onClick={() => { setError(null); setLoading(true); loadScheduleContent(); }}
+                style={{
+                  marginTop: '16px',
+                  padding: '12px 24px',
+                  backgroundColor: '#1a1a1a',
+                  border: '1px solid #2a2a2a',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  cursor: 'pointer'
+                }}
+              >
+                Retry
+              </button>
             </div>
           ) : scheduleItems.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>

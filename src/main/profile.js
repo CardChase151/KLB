@@ -1,45 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import { useAuth } from '../context/AuthContext';
 import './content.css';
 import '../onboarding/onboarding.css';
 
 function Profile() {
-  const [user, setUser] = useState(null);
-  const [userProfile, setUserProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user, userProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const navigate = useNavigate();
-
-  // App.js handles auth - this component only renders when authenticated
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session?.user) {
-        setUser(session.user);
-
-        const { data: profile } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-
-        if (profile) {
-          setUserProfile(profile);
-        }
-      }
-
-      setLoading(false);
-    } catch (error) {
-      console.error('Error loading data:', error);
-      setLoading(false);
-    }
-  };
 
   const handleLogout = async () => {
     try {
@@ -83,13 +52,6 @@ function Profile() {
     console.log(`Navigating to: ${tab}`);
   };
 
-  if (loading) {
-    return (
-      <div className="app-container">
-        <div className="spinner"></div>
-      </div>
-    );
-  }
 
   return (
     <div style={{
