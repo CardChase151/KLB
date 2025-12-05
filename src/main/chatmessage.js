@@ -280,7 +280,7 @@ function ChatMessage() {
       <div className="chat-message-container">
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
           <h3 style={{ color: '#fff' }}>Chat not found</h3>
-          <button onClick={handleBackToChat} style={{ background: '#ff0000', color: '#fff', border: 'none', padding: '12px 24px', borderRadius: '8px', marginTop: '16px' }}>
+          <button onClick={handleBackToChat} style={{ background: '#ffffff', color: '#fff', border: 'none', padding: '12px 24px', borderRadius: '8px', marginTop: '16px' }}>
             Back to Chats
           </button>
         </div>

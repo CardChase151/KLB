@@ -107,129 +107,167 @@ function Profile() {
   }
 
   return (
-    <>
+    <div style={{
+      position: 'fixed',
+      top: '0',
+      left: '0',
+      right: '0',
+      bottom: '0',
+      overflow: 'hidden',
+      backgroundColor: '#0a0a0a'
+    }}>
+      {/* Header */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        padding: '12px 16px',
+        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)',
+        backgroundColor: '#0a0a0a',
+        flexShrink: 0,
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        gap: '12px'
+      }}>
+        <button onClick={() => navigate('/home')} style={{
+          width: '40px',
+          height: '40px',
+          borderRadius: '12px',
+          backgroundColor: '#1a1a1a',
+          border: '1px solid #2a2a2a',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          color: '#ffffff',
+          fontSize: '1.2rem'
+        }}>←</button>
+        <h1 style={{
+          color: '#ffffff',
+          fontSize: '20px',
+          fontWeight: '700',
+          margin: 0,
+          flex: 1,
+          textAlign: 'center',
+          marginRight: '40px'
+        }}>Profile</h1>
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: '40px',
+          right: '40px',
+          height: '2px',
+          backgroundColor: 'rgba(255, 255, 255, 0.35)',
+          borderRadius: '1px'
+        }} />
+      </div>
+
+      {/* Scrollable Content Container */}
       <div style={{
         position: 'fixed',
-        top: '0',
+        top: 'calc(env(safe-area-inset-top, 0px) + 70px)',
         left: '0',
         right: '0',
-        bottom: '0',
-        overflow: 'hidden',
-        touchAction: 'none'
+        bottom: '100px',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        touchAction: 'pan-y',
+        WebkitOverflowScrolling: 'touch'
       }}>
-        {/* Dynamic Bar Background - Black */}
         <div style={{
-          backgroundColor: '#000000',
-          position: 'fixed',
-          top: '0',
-          left: '0',
-          right: '0',
-          height: '60px',
-          zIndex: '999'
-        }}></div>
-
-        {/* Back Button - Fixed Position */}
-        <button
-          onClick={() => navigate('/home')}
-          style={{
-            position: 'fixed',
-            top: '70px',
-            left: '20px',
-            zIndex: '1000',
-            width: '36px',
-            height: '36px',
-            fontSize: '1.5rem',
-            boxShadow: '0 2px 8px rgba(255, 0, 0, 0.2)',
-            borderRadius: '50%',
-            backgroundColor: '#ff0000',
-            color: '#ffffff',
-            border: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '0',
-            cursor: 'pointer',
-            fontWeight: 'bold'
-          }}
-        >
-          ←
-        </button>
-
-        {/* Title - Fixed Position */}
-        <div style={{
-          position: 'fixed',
-          top: '70px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: '1000'
+          paddingLeft: '20px',
+          paddingRight: '20px',
+          paddingBottom: '20px'
         }}>
-          <h1 className="app-title" style={{margin: '0', fontSize: '2rem'}}>Profile</h1>
-        </div>
+          <p style={{
+            color: '#888',
+            fontSize: '0.9rem',
+            margin: '0 0 20px 0',
+            textAlign: 'center'
+          }}>Your account information</p>
 
-        {/* Scrollable Content Container */}
-        <div style={{
-          position: 'fixed',
-          top: '120px',
-          left: '0',
-          right: '0',
-          bottom: '20px',
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          touchAction: 'pan-y',
-          WebkitOverflowScrolling: 'touch'
-        }}>
-          <div className="app-container" style={{
-            marginTop: '0',
-            minHeight: '100%',
-            paddingBottom: '120px',
-            paddingLeft: '20px',
-            paddingRight: '20px',
-            width: '100%',
-            maxWidth: '100vw',
-            overflowX: 'hidden',
-            boxSizing: 'border-box'
+          {/* Profile Card */}
+          <div style={{
+            backgroundColor: '#1a1a1a',
+            borderRadius: '12px',
+            padding: '20px',
+            border: '1px solid #2a2a2a'
           }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#888', fontSize: '0.9rem' }}>Name</span>
+                <span style={{ color: '#ffffff', fontSize: '0.95rem', fontWeight: '500' }}>
+                  {userProfile?.first_name || ''} {userProfile?.last_name || ''}
+                </span>
+              </div>
 
-            <div className="profile-content">
-              <div className="profile-section" style={{marginTop: '40px'}}>
+              <div style={{ height: '1px', backgroundColor: '#2a2a2a' }} />
 
-                <div className="profile-info">
-                  <div className="profile-item">
-                    <label>Name:</label>
-                    <span>{userProfile?.first_name || ''} {userProfile?.last_name || ''}</span>
-                  </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#888', fontSize: '0.9rem' }}>Email</span>
+                <span style={{ color: '#ffffff', fontSize: '0.95rem', fontWeight: '500' }}>
+                  {user?.email || ''}
+                </span>
+              </div>
 
-                  <div className="profile-item">
-                    <label>Email:</label>
-                    <span>{user?.email || ''}</span>
-                  </div>
+              <div style={{ height: '1px', backgroundColor: '#2a2a2a' }} />
 
-                  <div className="profile-item">
-                    <label>Role:</label>
-                    <span>{userProfile?.role || 'user'}</span>
-                  </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#888', fontSize: '0.9rem' }}>Role</span>
+                <span style={{
+                  color: '#ffffff',
+                  fontSize: '0.85rem',
+                  fontWeight: '500',
+                  backgroundColor: '#2a2a2a',
+                  padding: '4px 10px',
+                  borderRadius: '12px',
+                  textTransform: 'capitalize'
+                }}>
+                  {userProfile?.role || 'user'}
+                </span>
+              </div>
 
-                  <div className="profile-item">
-                    <label>Member Since:</label>
-                    <span>{userProfile?.created_at ? new Date(userProfile.created_at).toLocaleDateString() : ''}</span>
-                  </div>
-                </div>
+              <div style={{ height: '1px', backgroundColor: '#2a2a2a' }} />
 
-                <button className="logout-button" onClick={handleLogout}>
-                  Logout
-                </button>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#888', fontSize: '0.9rem' }}>Member Since</span>
+                <span style={{ color: '#ffffff', fontSize: '0.95rem', fontWeight: '500' }}>
+                  {userProfile?.created_at ? new Date(userProfile.created_at).toLocaleDateString() : ''}
+                </span>
               </div>
             </div>
           </div>
+
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            style={{
+              width: '100%',
+              marginTop: '24px',
+              padding: '14px 20px',
+              backgroundColor: 'transparent',
+              border: '1px solid #ff4444',
+              borderRadius: '12px',
+              color: '#ff4444',
+              fontSize: '1rem',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+          >
+            Logout
+          </button>
         </div>
       </div>
 
+      {/* Bottom Navigation */}
       <BottomNav
         activeTab={activeTab}
         onTabChange={handleTabChange}
         user={userProfile}
       />
-    </>
+    </div>
   );
 }
 

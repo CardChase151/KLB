@@ -41,7 +41,7 @@ html, body {
 }
 
 .back-button {
-  background-color: #ff0000;
+  background-color: #ffffff;
   color: #ffffff;
   border: none;
   border-radius: 50%;
@@ -56,7 +56,7 @@ html, body {
 }
 
 .back-button:active {
-  background-color: #cc0000;
+  background-color: #ffffff;
 }
 
 .dash-title {
@@ -92,7 +92,7 @@ html, body {
 
 .search-toggle-button:active,
 .new-chat-button:active {
-  background-color: #ff0000;
+  background-color: #ffffff;
 }
 
 /* New Chat Menu */
@@ -175,7 +175,7 @@ html, body {
 }
 
 .search-mode-btn.active {
-  background-color: #ff0000;
+  background-color: #ffffff;
   color: #ffffff;
 }
 
@@ -212,7 +212,7 @@ html, body {
 }
 
 .search-input:focus {
-  border-color: #ff0000;
+  border-color: #ffffff;
 }
 
 .search-input::placeholder {
@@ -261,8 +261,8 @@ html, body {
 }
 
 .filter-tab.active {
-  color: #ff0000;
-  border-bottom-color: #ff0000;
+  color: #ffffff;
+  border-bottom-color: #ffffff;
 }
 
 .filter-tab:not(.active):active {
@@ -304,14 +304,14 @@ html, body {
 
 .chat-card:active {
   background-color: #2a2a2a;
-  border-color: #ff0000;
+  border-color: #ffffff;
   transform: translateY(1px);
 }
 
 /* Mandatory Chat (Team Inspire) */
 .chat-card.mandatory {
   background-color: rgba(255, 0, 0, 0.05);
-  border-color: #ff0000;
+  border-color: #ffffff;
   position: relative;
 }
 
@@ -322,7 +322,7 @@ html, body {
   top: 0;
   bottom: 0;
   width: 4px;
-  background-color: #ff0000;
+  background-color: #ffffff;
   border-radius: 12px 0 0 12px;
 }
 
@@ -345,7 +345,7 @@ html, body {
 }
 
 .chat-avatar.mandatory {
-  background-color: #ff0000;
+  background-color: #ffffff;
 }
 
 .chat-icon-image {
@@ -392,7 +392,7 @@ html, body {
 }
 
 .chat-title.mandatory {
-  color: #ff0000;
+  color: #ffffff;
   font-weight: 700;
 }
 
@@ -444,7 +444,7 @@ html, body {
 
 .loader {
   border: 3px solid #333;
-  border-top: 3px solid #ff0000;
+  border-top: 3px solid #ffffff;
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -509,7 +509,7 @@ html, body {
   position: absolute;
   top: 0px;
   right: 0px;
-  background-color: #ff0000;
+  background-color: #ffffff;
   color: #ffffff;
   border-radius: 50%;
   min-width: 20px;
@@ -538,7 +538,7 @@ html, body {
 .unread-dot {
   width: 12px;
   height: 12px;
-  background-color: #ff0000;
+  background-color: #ffffff;
   border-radius: 50%;
   border: 2px solid #000000;
 }

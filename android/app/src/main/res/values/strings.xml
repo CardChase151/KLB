@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">KLB</string>
+    <string name="title_activity_main">KLB</string>
+    <string name="package_name">com.k2coach.klb</string>
+    <string name="custom_url_scheme">com.k2coach.klb</string>
+</resources>

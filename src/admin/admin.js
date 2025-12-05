@@ -1,13 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import BottomNav from '../bottomnav/bottomnav';
 import './admin.css';
 
 function Admin() {
   const [user, setUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [totalUsers, setTotalUsers] = useState('--');
   const navigate = useNavigate();
+
+  const handleNavTabChange = (tab) => {
+    if (tab === 'home') navigate('/home');
+    else if (tab === 'training') navigate('/training');
+    else if (tab === 'schedule') navigate('/schedule');
+    else if (tab === 'licensing') navigate('/licensing');
+    else if (tab === 'calculator') navigate('/calculator');
+  };
 
   useEffect(() => {
     checkUser();
@@ -36,6 +46,7 @@ function Admin() {
     }
 
     setUser(session.user);
+    setUserProfile(profile);
     setLoading(false);
   };
 
@@ -58,10 +69,12 @@ function Admin() {
 
   const handleManageContent = (contentType) => {
     // Navigate to admin2.js with the content type
-    navigate('/admin-manage', { 
-      state: { 
+    // For category management, table name doesn't have _content suffix
+    const isCategories = contentType.endsWith('_categories');
+    navigate('/admin-manage', {
+      state: {
         contentType: contentType,
-        tableName: `${contentType}_content`
+        tableName: isCategories ? contentType : `${contentType}_content`
       }
     });
   };
@@ -86,64 +99,63 @@ function Admin() {
       right: '0',
       bottom: '0',
       overflow: 'hidden',
-      touchAction: 'none'
+      backgroundColor: '#0a0a0a',
+      display: 'flex',
+      flexDirection: 'column'
     }}>
-      {/* Dynamic Bar Background - Black */}
+      {/* Header */}
       <div style={{
-        backgroundColor: '#000000',
-        position: 'fixed',
-        top: '0',
-        left: '0',
-        right: '0',
-        height: '60px',
-        zIndex: '999'
-      }}></div>
-
-      {/* Back Button - Fixed Position */}
-      <button
-        onClick={goBack}
-        style={{
-          position: 'fixed',
-          top: '70px',
-          left: '20px',
-          zIndex: '1000',
-          width: '36px',
-          height: '36px',
-          fontSize: '1.5rem',
-          boxShadow: '0 2px 8px rgba(255, 0, 0, 0.2)',
-          borderRadius: '50%',
-          backgroundColor: '#ff0000',
-          color: '#ffffff',
-          border: 'none',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '0',
-          cursor: 'pointer',
-          fontWeight: 'bold'
-        }}
-      >
-        ←
-      </button>
-
-      {/* Title - Fixed Position */}
-      <div style={{
-        position: 'fixed',
-        top: '70px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: '1000'
+        display: 'flex',
+        alignItems: 'center',
+        padding: '12px 16px',
+        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)',
+        backgroundColor: '#0a0a0a',
+        flexShrink: 0,
+        position: 'relative',
+        gap: '12px'
       }}>
-        <h1 className="admin-title" style={{margin: '0', fontSize: '2rem', color: '#ffffff'}}>Admin</h1>
+        <button
+          onClick={goBack}
+          style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '12px',
+            backgroundColor: '#1a1a1a',
+            border: '1px solid #2a2a2a',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            color: '#ffffff',
+            flexShrink: 0,
+            fontSize: '1.2rem'
+          }}
+        >
+          ←
+        </button>
+        <h1 style={{
+          color: '#ffffff',
+          fontSize: '20px',
+          fontWeight: '700',
+          margin: 0,
+          flex: 1,
+          textAlign: 'center',
+          marginRight: '40px'
+        }}>Admin Dashboard</h1>
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: '40px',
+          right: '40px',
+          height: '2px',
+          backgroundColor: 'rgba(255, 255, 255, 0.35)',
+          borderRadius: '1px'
+        }} />
       </div>
 
       {/* Scrollable Content Container */}
       <div style={{
-        position: 'fixed',
-        top: '120px',
-        left: '0',
-        right: '0',
-        bottom: '20px',
+        flex: 1,
         overflowY: 'auto',
         overflowX: 'hidden',
         touchAction: 'pan-y',
@@ -152,7 +164,8 @@ function Admin() {
         <div className="admin-container" style={{
           marginTop: '0',
           minHeight: '100%',
-          paddingBottom: '20px',
+          paddingTop: '0',
+          paddingBottom: '100px',
           paddingLeft: '20px',
           paddingRight: '20px',
           width: '100%',
@@ -162,26 +175,15 @@ function Admin() {
         }}>
 
           <div className="admin-welcome">
+            <p className="admin-subtitle">Manage app content and settings</p>
             <div className="admin-lock-icon">
               <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <h2>Admin Dashboard</h2>
-            <p>Welcome, {user?.user_metadata?.first_name || 'Admin'}</p>
-            <p className="admin-subtitle">Manage app content and settings</p>
-          </div>
-
-          <div className="admin-stats">
-            <div className="admin-stat-card">
-              <div className="admin-stat-number">{totalUsers}</div>
-              <div className="admin-stat-label">Total Users</div>
-            </div>
           </div>
 
           <div className="admin-menu">
-            <h3>Content Management</h3>
-
             <button
               className="admin-menu-button"
               onClick={() => handleManageContent('home')}
@@ -200,22 +202,6 @@ function Admin() {
 
             <button
               className="admin-menu-button"
-              onClick={() => handleManageContent('training')}
-            >
-              <div className="admin-menu-icon">
-                <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-              </div>
-              <div className="admin-menu-content">
-                <div className="admin-menu-title">Training Content</div>
-                <div className="admin-menu-desc">Manage training videos and materials</div>
-              </div>
-              <div className="admin-menu-arrow">→</div>
-            </button>
-
-            <button
-              className="admin-menu-button"
               onClick={() => handleManageContent('newrepstart')}
             >
               <div className="admin-menu-icon">
@@ -224,7 +210,7 @@ function Admin() {
                 </svg>
               </div>
               <div className="admin-menu-content">
-                <div className="admin-menu-title">New Rep Start</div>
+                <div className="admin-menu-title">10 Day Launch</div>
                 <div className="admin-menu-desc">Manage new representative onboarding content</div>
               </div>
               <div className="admin-menu-arrow">→</div>
@@ -232,7 +218,23 @@ function Admin() {
 
             <button
               className="admin-menu-button"
-              onClick={() => handleManageContent('licensing')}
+              onClick={() => handleManageContent('training_combined')}
+            >
+              <div className="admin-menu-icon">
+                <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <div className="admin-menu-content">
+                <div className="admin-menu-title">Manage Training Content</div>
+                <div className="admin-menu-desc">Add categories and training materials</div>
+              </div>
+              <div className="admin-menu-arrow">→</div>
+            </button>
+
+            <button
+              className="admin-menu-button"
+              onClick={() => handleManageContent('licensing_combined')}
             >
               <div className="admin-menu-icon">
                 <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -240,8 +242,8 @@ function Admin() {
                 </svg>
               </div>
               <div className="admin-menu-content">
-                <div className="admin-menu-title">Licensing</div>
-                <div className="admin-menu-desc">Manage licensing content and resources</div>
+                <div className="admin-menu-title">Manage Licensing Content</div>
+                <div className="admin-menu-desc">Add categories and licensing materials</div>
               </div>
               <div className="admin-menu-arrow">→</div>
             </button>
@@ -262,6 +264,7 @@ function Admin() {
               <div className="admin-menu-arrow">→</div>
             </button>
 
+            {/* Chat Management - Hidden for now
             <button
               className="admin-menu-button"
               onClick={() => handleManageContent('chat')}
@@ -277,6 +280,7 @@ function Admin() {
               </div>
               <div className="admin-menu-arrow">→</div>
             </button>
+            */}
 
             <button
               className="admin-menu-button"
@@ -297,6 +301,13 @@ function Admin() {
           </div>
         </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNav
+        activeTab="admin"
+        onTabChange={handleNavTabChange}
+        user={userProfile}
+      />
     </div>
   );
 }

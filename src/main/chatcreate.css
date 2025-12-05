@@ -37,7 +37,7 @@
   }
   
   .back-button-create {
-    background-color: #ff0000;
+    background-color: #ffffff;
     color: #ffffff;
     border: none;
     border-radius: 50%;
@@ -54,7 +54,7 @@
   }
   
   .back-button-create:active {
-    background-color: #cc0000;
+    background-color: #ffffff;
   }
   
   .header-content {
@@ -93,7 +93,7 @@
   
   .selected-count {
     font-size: 0.85rem;
-    color: #ff0000;
+    color: #ffffff;
     font-weight: 600;
     margin-bottom: 2px;
   }
@@ -158,7 +158,7 @@
   }
   
   .search-input:focus {
-    border-color: #ff0000;
+    border-color: #ffffff;
   }
   
   .search-input::placeholder {
@@ -183,7 +183,7 @@
   
   .loading-users .loader {
     border: 3px solid #333;
-    border-top: 3px solid #ff0000;
+    border-top: 3px solid #ffffff;
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -273,7 +273,7 @@
   }
   
   .user-card.selected .user-avatar {
-    background-color: #ff0000;
+    background-color: #ffffff;
   }
   
   .user-info {
@@ -306,7 +306,7 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    color: #ff0000;
+    color: #ffffff;
   }
   
   /* ========== MESSAGE SECTION ========== */
@@ -359,7 +359,7 @@
   }
   
   .first-message-input:focus {
-    border-color: #ff0000;
+    border-color: #ffffff;
   }
   
   .first-message-input::placeholder {
@@ -390,12 +390,12 @@
   }
   
   .create-chat-button.active {
-    background-color: #ff0000;
+    background-color: #ffffff;
     cursor: pointer;
   }
   
   .create-chat-button.active:active {
-    background-color: #cc0000;
+    background-color: #ffffff;
   }
   
   .create-chat-button.disabled {
@@ -583,7 +583,7 @@
 }
 
 .required {
-  color: #ff0000;
+  color: #ffffff;
 }
 
 .group-name-input {
@@ -600,7 +600,7 @@
 }
 
 .group-name-input:focus {
-  border-color: #ff0000;
+  border-color: #ffffff;
 }
 
 .group-name-input::placeholder {

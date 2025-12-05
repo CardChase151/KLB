@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import './content.css';
+import logo from '../assets/klb-logo.png';
 
 function NewRepStart() {
   const [user, setUser] = useState(null);
@@ -75,59 +76,58 @@ function NewRepStart() {
       overflow: 'hidden',
       touchAction: 'none'
     }}>
-      {/* Dynamic Bar Background - Black */}
+      {/* Header */}
       <div style={{
-        backgroundColor: '#000000',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '12px 16px',
+        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)',
+        backgroundColor: '#0a0a0a',
+        flexShrink: 0,
         position: 'fixed',
-        top: '0',
-        left: '0',
-        right: '0',
-        height: '60px',
-        zIndex: '999'
-      }}></div>
-
-      {/* Back Button - Fixed Position */}
-      <button
-        onClick={handleBackToHome}
-        style={{
-          position: 'fixed',
-          top: '70px',
-          left: '20px',
-          zIndex: '1000',
-          width: '36px',
-          height: '36px',
-          fontSize: '1.5rem',
-          boxShadow: '0 2px 8px rgba(255, 0, 0, 0.2)',
-          borderRadius: '50%',
-          backgroundColor: '#ff0000',
-          color: '#ffffff',
-          border: 'none',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        gap: '12px'
+      }}>
+        <button onClick={handleBackToHome} style={{
+          width: '40px',
+          height: '40px',
+          borderRadius: '12px',
+          backgroundColor: '#1a1a1a',
+          border: '1px solid #2a2a2a',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '0',
           cursor: 'pointer',
-          fontWeight: 'bold'
-        }}
-      >
-        ←
-      </button>
-
-      {/* Title - Fixed Position */}
-      <div style={{
-        position: 'fixed',
-        top: '70px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: '1000'
-      }}>
-        <h1 className="app-title" style={{margin: '0', fontSize: '2rem', whiteSpace: 'nowrap'}}>New Rep Start</h1>
+          color: '#ffffff',
+          fontSize: '1.2rem'
+        }}>←</button>
+        <h1 style={{
+          color: '#ffffff',
+          fontSize: '20px',
+          fontWeight: '700',
+          margin: 0,
+          flex: 1,
+          textAlign: 'center',
+          marginRight: '40px'
+        }}>10 Day Launch</h1>
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: '40px',
+          right: '40px',
+          height: '2px',
+          backgroundColor: 'rgba(255, 255, 255, 0.35)',
+          borderRadius: '1px'
+        }} />
       </div>
 
       {/* Scrollable Content Container */}
       <div style={{
         position: 'fixed',
-        top: '120px',
+        top: 'calc(env(safe-area-inset-top, 0px) + 70px)',
         left: '0',
         right: '0',
         bottom: '20px',
@@ -148,66 +148,88 @@ function NewRepStart() {
           boxSizing: 'border-box'
         }}>
 
-          <div className="content-section">
-            <h2>Getting Started Resources</h2>
-            <p>Essential materials and training for new representatives</p>
-          </div>
+          <p style={{
+            color: '#888',
+            fontSize: '0.9rem',
+            margin: '0 0 20px 0',
+            textAlign: 'center'
+          }}>Essential materials and training for new representatives</p>
 
           {isLoadingContent ? (
-            <div className="loading-container">
-              <div className="loader"></div>
-              <p className="loading-text">Loading content...</p>
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+              <div className="spinner"></div>
             </div>
           ) : contentItems.length === 0 ? (
-            <div className="empty-state">
-              <svg width="64" height="64" fill="none" stroke="#666" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <h3>No Content Available</h3>
-              <p>There are no new rep start materials available yet.</p>
+            <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+              <p>No content available yet.</p>
             </div>
           ) : (
-            <div className="training-content-grid">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {contentItems.map((item) => (
                 <div
                   key={item.id}
-                  className="training-content-card"
-                  onClick={() => handleContentClick(item.url)}
+                  style={{
+                    backgroundColor: '#1a1a1a',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    border: '1px solid #2a2a2a'
+                  }}
                 >
-                  <div className="training-content-image">
-                    <img
-                      src={item.image_url || '/assets/logo.jpg'}
-                      alt={item.title}
-                      onError={(e) => {
-                        e.target.src = '/assets/logo.jpg';
-                      }}
-                    />
-                    {item.url && (
-                      <div className="training-content-overlay">
-                        <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z"/>
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="training-content-body">
-                    <h3 className="training-content-title">{item.title}</h3>
-                    {item.description && (
-                      <p className="training-content-description">{item.description}</p>
-                    )}
-                    <div className="training-content-meta">
-                      <span className="badge">New Rep Start</span>
-                      {item.url && (
-                        <span className="training-meta-item">
-                          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                          </svg>
-                          Open Resource
-                        </span>
-                      )}
+                  {/* Image */}
+                  {(item.image_url || item.use_logo) && (
+                    <div style={{ marginBottom: '12px', borderRadius: '8px', overflow: 'hidden', display: 'flex', justifyContent: item.use_logo ? 'center' : 'flex-start', backgroundColor: item.use_logo ? '#0a0a0a' : 'transparent', padding: item.use_logo ? '1rem' : '0' }}>
+                      <img
+                        src={item.use_logo ? logo : item.image_url}
+                        alt={item.title}
+                        style={{ width: item.use_logo ? '100px' : '100%', height: 'auto', display: 'block' }}
+                      />
                     </div>
-                  </div>
+                  )}
+
+                  {/* Title */}
+                  <h3 style={{
+                    color: '#ffffff',
+                    fontSize: '1.1rem',
+                    fontWeight: '600',
+                    margin: '0 0 8px 0'
+                  }}>
+                    {item.title}
+                  </h3>
+
+                  {/* Description */}
+                  {item.description && (
+                    <p style={{
+                      color: '#888',
+                      fontSize: '0.9rem',
+                      margin: '0 0 12px 0',
+                      lineHeight: '1.5'
+                    }}>
+                      {item.description}
+                    </p>
+                  )}
+
+                  {/* Link Button */}
+                  {item.url && (
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        backgroundColor: 'transparent',
+                        color: '#4da6ff',
+                        padding: '8px 0',
+                        textDecoration: 'none',
+                        fontSize: '0.9rem',
+                        fontWeight: '500'
+                      }}
+                    >
+                      {item.link_title || 'Learn More'}
+                      <span style={{ fontSize: '0.8rem' }}>→</span>
+                    </a>
+                  )}
                 </div>
               ))}
             </div>

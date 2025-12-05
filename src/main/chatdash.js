@@ -131,14 +131,14 @@ function ChatDash() {
         .eq('chat_participants.is_active', true)
         .eq('is_active', true);
 
-      // Exclude Team Inspire chat if user doesn't have access
+      // Exclude KLB chat if user doesn't have access
       console.log('User permissions:', userPermissions);
-      console.log('Team Inspire enabled:', userPermissions.team_inspire_enabled);
+      console.log('KLB enabled:', userPermissions.team_inspire_enabled);
       if (!userPermissions.team_inspire_enabled) {
-        console.log('Filtering out Team Inspire chat');
+        console.log('Filtering out KLB chat');
         chatsQuery = chatsQuery.neq('type', 'mandatory');
       } else {
-        console.log('Keeping Team Inspire chat');
+        console.log('Keeping KLB chat');
       }
 
       // Only filter hidden chats if there are any
@@ -263,9 +263,9 @@ function ChatDash() {
         })
       );
       
-      // Sort chats: Team Inspire first, then unread chats, then by last message time
+      // Sort chats: KLB first, then unread chats, then by last message time
       const sortedChats = chatsWithData.sort((a, b) => {
-        // Team Inspire always first
+        // KLB always first
         if (a.type === 'mandatory') return -1;
         if (b.type === 'mandatory') return 1;
         
@@ -383,7 +383,7 @@ function ChatDash() {
 
   const getChatDisplayName = (chat) => {
     if (chat.type === 'mandatory') {
-      return chat.name; // "Team Inspire"
+      return chat.name; // "KLB"
     }
     
     if (chat.type === 'individual') {
@@ -400,7 +400,7 @@ function ChatDash() {
       return (
         <img 
           src="/assets/logo.jpg" 
-          alt="Team Inspire"
+          alt="KLB"
           className="chat-icon-image"
         />
       );
@@ -495,7 +495,7 @@ function ChatDash() {
           fontSize: '1.5rem',
           boxShadow: '0 2px 8px rgba(255, 0, 0, 0.2)',
           borderRadius: '50%',
-          backgroundColor: '#ff0000',
+          backgroundColor: '#ffffff',
           color: '#ffffff',
           border: 'none',
           display: 'flex',

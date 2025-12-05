@@ -54,7 +54,7 @@ function BottomNav({ activeTab, onTabChange, user }) {
         .eq('chat_participants.is_active', true)
         .eq('is_active', true);
 
-      // Exclude Team Inspire chat if user doesn't have access
+      // Exclude KLB chat if user doesn't have access
       if (!userPermissions.team_inspire_enabled) {
         chatsQuery = chatsQuery.neq('type', 'mandatory');
       }
@@ -147,6 +147,12 @@ function BottomNav({ activeTab, onTabChange, user }) {
       return;
     }
 
+    if (tab === 'notifications') {
+      navigate('/notifications');
+      setShowMoreNav(false);
+      return;
+    }
+
     if (tab !== 'more') {
       setShowMoreNav(false);
       onTabChange(tab);
@@ -183,7 +189,7 @@ function BottomNav({ activeTab, onTabChange, user }) {
           <span className="nav-label">Notifications</span>
         </button>
 
-        <button 
+        <button
           onClick={() => handleNavClick('schedule')}
           className={`nav-button ${activeTab === 'schedule' ? 'active' : ''}`}
         >
@@ -194,20 +200,13 @@ function BottomNav({ activeTab, onTabChange, user }) {
         </button>
 
         <button
-          onClick={() => handleNavClick('chat')}
-          className={`nav-button ${activeTab === 'chat' ? 'active' : ''}`}
+          onClick={() => handleNavClick('training')}
+          className={`nav-button ${activeTab === 'training' ? 'active' : ''}`}
         >
-          <div className="nav-icon-container">
-            <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-            </svg>
-            {unreadCount > 0 && (
-              <div className="nav-badge">
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </div>
-            )}
-          </div>
-          <span className="nav-label">Chat</span>
+          <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+          <span className="nav-label">Training</span>
         </button>
 
         <button 
@@ -224,7 +223,7 @@ function BottomNav({ activeTab, onTabChange, user }) {
       {/* Expanded Navigation Row */}
       {showMoreNav && (
         <div className="nav-row expanded-row">
-          <button 
+          <button
             onClick={() => handleNavClick('licensing')}
             className={`nav-button ${activeTab === 'licensing' ? 'active' : ''}`}
           >
@@ -232,16 +231,6 @@ function BottomNav({ activeTab, onTabChange, user }) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             <span className="nav-label">Licensing</span>
-          </button>
-
-          <button 
-            onClick={() => handleNavClick('training')}
-            className={`nav-button ${activeTab === 'training' ? 'active' : ''}`}
-          >
-            <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-            <span className="nav-label">Training</span>
           </button>
 
           <button 

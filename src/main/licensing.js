@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import BottomNav from '../bottomnav/bottomnav';
 import './content.css';
+import logo from '../assets/klb-logo.png';
 
 function Licensing() {
   const [user, setUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('Life insurance license');
-  const [licenseItems, setLicenseItems] = useState([]);
-  const [isLoadingLicenses, setIsLoadingLicenses] = useState(false);
+  const [activeTab, setActiveTab] = useState('life'); // 'life' or 'securities'
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [contentItems, setContentItems] = useState([]);
+  const [isLoadingContent, setIsLoadingContent] = useState(false);
   const navigate = useNavigate();
-
-  const licenseTabs = [
-    'Life insurance license',
-    'Securities license'
-  ];
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -23,53 +23,101 @@ function Licensing() {
 
   useEffect(() => {
     if (user) {
-      loadLicenseContent(activeTab);
+      loadCategories();
     }
   }, [activeTab, user]);
 
   const checkUser = async () => {
     const { data: { session }, error } = await supabase.auth.getSession();
-    
+
     if (error || !session) {
       navigate('/', { replace: true });
       return;
     }
 
     setUser(session.user);
+
+    // Get user profile
+    const { data: profile } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profile) {
+      setUserProfile(profile);
+    }
+
     setLoading(false);
   };
 
-  const loadLicenseContent = async (category) => {
-    setIsLoadingLicenses(true);
+  const loadCategories = async () => {
     try {
+      // Load categories filtered by license type
       const { data, error } = await supabase
-        .from('licensing_content')
+        .from('licensing_categories')
         .select('*')
-        .eq('category', category)
+        .eq('license_type', activeTab)
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
 
       if (error) throw error;
-      setLicenseItems(data || []);
+      setCategories(data || []);
     } catch (error) {
-      console.error('Error loading licenses:', error);
-      alert('Error loading licenses: ' + error.message);
-    } finally {
-      setIsLoadingLicenses(false);
+      console.error('Error loading categories:', error);
     }
+  };
+
+  const loadCategoryContent = async (categoryName) => {
+    setIsLoadingContent(true);
+    try {
+      const { data, error } = await supabase
+        .from('licensing_content')
+        .select('*')
+        .eq('category', categoryName)
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+
+      if (error) throw error;
+      setContentItems(data || []);
+    } catch (error) {
+      console.error('Error loading content:', error);
+    } finally {
+      setIsLoadingContent(false);
+    }
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setSelectedCategory(null);
+    setContentItems([]);
+  };
+
+  const handleCategoryClick = (category) => {
+    window.scrollTo(0, 0);
+    setSelectedCategory(category);
+    loadCategoryContent(category.name);
+  };
+
+  const handleBackToCategories = () => {
+    window.scrollTo(0, 0);
+    setSelectedCategory(null);
+    setContentItems([]);
   };
 
   const handleBackToHome = () => {
     navigate('/home');
   };
 
-  const handleTabClick = (tab) => {
-    setActiveTab(tab);
-  };
-
-  const handleLicenseItemClick = (url) => {
-    if (url) {
-      window.open(url, '_blank', 'noopener,noreferrer');
+  const handleNavTabChange = (tab) => {
+    if (tab === 'home') {
+      navigate('/home');
+    } else if (tab === 'training') {
+      navigate('/training');
+    } else if (tab === 'schedule') {
+      navigate('/schedule');
+    } else if (tab === 'calculator') {
+      navigate('/calculator');
     }
   };
 
@@ -81,6 +129,185 @@ function Licensing() {
     );
   }
 
+  // Content List View (inside a category)
+  if (selectedCategory) {
+    return (
+      <div style={{
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        right: '0',
+        bottom: '0',
+        overflow: 'hidden',
+        backgroundColor: '#0a0a0a'
+      }}>
+        {/* Header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          padding: '12px 16px',
+          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)',
+          backgroundColor: '#0a0a0a',
+          flexShrink: 0,
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          gap: '12px'
+        }}>
+          <button onClick={handleBackToCategories} style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '12px',
+            backgroundColor: '#1a1a1a',
+            border: '1px solid #2a2a2a',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            color: '#ffffff',
+            fontSize: '1.2rem'
+          }}>←</button>
+          <h1 style={{
+            color: '#ffffff',
+            fontSize: '20px',
+            fontWeight: '700',
+            margin: 0,
+            flex: 1,
+            textAlign: 'center',
+            marginRight: '40px'
+          }}>{selectedCategory.name}</h1>
+          <div style={{
+            position: 'absolute',
+            bottom: 0,
+            left: '40px',
+            right: '40px',
+            height: '2px',
+            backgroundColor: 'rgba(255, 255, 255, 0.35)',
+            borderRadius: '1px'
+          }} />
+        </div>
+
+        {/* Scrollable Content Container */}
+        <div style={{
+          position: 'fixed',
+          top: 'calc(env(safe-area-inset-top, 0px) + 70px)',
+          left: '0',
+          right: '0',
+          bottom: '100px',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          touchAction: 'pan-y',
+          WebkitOverflowScrolling: 'touch'
+        }}>
+          <div style={{
+            paddingLeft: '20px',
+            paddingRight: '20px',
+            paddingBottom: '20px'
+          }}>
+            {selectedCategory.description && (
+              <p style={{
+                color: '#888',
+                fontSize: '0.9rem',
+                margin: '0 0 20px 0',
+                textAlign: 'center'
+              }}>{selectedCategory.description}</p>
+            )}
+
+            {isLoadingContent ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+                <div className="spinner"></div>
+              </div>
+            ) : contentItems.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+                <p>No content available for this category yet.</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {contentItems.map((item) => (
+                  <div
+                    key={item.id}
+                    style={{
+                      backgroundColor: '#1a1a1a',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      border: '1px solid #2a2a2a'
+                    }}
+                  >
+                    {/* Image */}
+                    {(item.image_url || item.use_logo) && (
+                      <div style={{ marginBottom: '12px', borderRadius: '8px', overflow: 'hidden', display: 'flex', justifyContent: item.use_logo ? 'center' : 'flex-start', backgroundColor: item.use_logo ? '#0a0a0a' : 'transparent', padding: item.use_logo ? '1rem' : '0' }}>
+                        <img
+                          src={item.use_logo ? logo : item.image_url}
+                          alt={item.title}
+                          style={{ width: item.use_logo ? '100px' : '100%', height: 'auto', display: 'block' }}
+                        />
+                      </div>
+                    )}
+
+                    {/* Title */}
+                    <h3 style={{
+                      color: '#ffffff',
+                      fontSize: '1.1rem',
+                      fontWeight: '600',
+                      margin: '0 0 8px 0'
+                    }}>
+                      {item.title}
+                    </h3>
+
+                    {/* Description */}
+                    {item.description && (
+                      <p style={{
+                        color: '#888',
+                        fontSize: '0.9rem',
+                        margin: '0 0 12px 0',
+                        lineHeight: '1.5'
+                      }}>
+                        {item.description}
+                      </p>
+                    )}
+
+                    {/* Link Button */}
+                    {item.url && (
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          backgroundColor: 'transparent',
+                          color: '#4da6ff',
+                          padding: '8px 0',
+                          textDecoration: 'none',
+                          fontSize: '0.9rem',
+                          fontWeight: '500'
+                        }}
+                      >
+                        {item.link_title || 'Learn More'}
+                        <span style={{ fontSize: '0.8rem' }}>→</span>
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom Navigation */}
+        <BottomNav
+          activeTab="licensing"
+          onTabChange={handleNavTabChange}
+          user={userProfile}
+        />
+      </div>
+    );
+  }
+
+  // Category Selection View (with tabs)
   return (
     <div style={{
       position: 'fixed',
@@ -89,149 +316,188 @@ function Licensing() {
       right: '0',
       bottom: '0',
       overflow: 'hidden',
-      touchAction: 'none'
+      backgroundColor: '#0a0a0a'
     }}>
-      {/* Dynamic Bar Background - Black */}
+      {/* Header */}
       <div style={{
-        backgroundColor: '#000000',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '12px 16px',
+        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)',
+        backgroundColor: '#0a0a0a',
+        flexShrink: 0,
         position: 'fixed',
-        top: '0',
-        left: '0',
-        right: '0',
-        height: '60px',
-        zIndex: '999'
-      }}></div>
-
-      {/* Back Button - Fixed Position */}
-      <button
-        onClick={handleBackToHome}
-        style={{
-          position: 'fixed',
-          top: '70px',
-          left: '20px',
-          zIndex: '1000',
-          width: '36px',
-          height: '36px',
-          fontSize: '1.5rem',
-          boxShadow: '0 2px 8px rgba(255, 0, 0, 0.2)',
-          borderRadius: '50%',
-          backgroundColor: '#ff0000',
-          color: '#ffffff',
-          border: 'none',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        gap: '12px'
+      }}>
+        <button onClick={handleBackToHome} style={{
+          width: '40px',
+          height: '40px',
+          borderRadius: '12px',
+          backgroundColor: '#1a1a1a',
+          border: '1px solid #2a2a2a',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '0',
           cursor: 'pointer',
-          fontWeight: 'bold'
-        }}
-      >
-        ←
-      </button>
-
-      {/* Title - Fixed Position */}
-      <div style={{
-        position: 'fixed',
-        top: '70px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: '1000'
-      }}>
-        <h1 className="app-title" style={{margin: '0', fontSize: '2rem'}}>Licensing</h1>
+          color: '#ffffff',
+          fontSize: '1.2rem'
+        }}>←</button>
+        <h1 style={{
+          color: '#ffffff',
+          fontSize: '20px',
+          fontWeight: '700',
+          margin: 0,
+          flex: 1,
+          textAlign: 'center',
+          marginRight: '40px'
+        }}>Licensing</h1>
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: '40px',
+          right: '40px',
+          height: '2px',
+          backgroundColor: 'rgba(255, 255, 255, 0.35)',
+          borderRadius: '1px'
+        }} />
       </div>
 
       {/* Scrollable Content Container */}
       <div style={{
         position: 'fixed',
-        top: '120px',
+        top: 'calc(env(safe-area-inset-top, 0px) + 70px)',
         left: '0',
         right: '0',
-        bottom: '20px',
+        bottom: '100px',
         overflowY: 'auto',
         overflowX: 'hidden',
         touchAction: 'pan-y',
         WebkitOverflowScrolling: 'touch'
       }}>
-        <div className="app-container" style={{
-          marginTop: '0',
-          minHeight: '100%',
-          paddingBottom: '20px',
+        <div style={{
           paddingLeft: '20px',
           paddingRight: '20px',
-          width: '100%',
-          maxWidth: '100vw',
-          overflowX: 'hidden',
-          boxSizing: 'border-box'
+          paddingBottom: '20px'
         }}>
+          <p style={{
+            color: '#888',
+            fontSize: '0.9rem',
+            margin: '0 0 16px 0',
+            textAlign: 'center'
+          }}>License requirements and study materials</p>
 
-          <div className="content-section">
-            <p>License requirements and study materials</p>
+          {/* Toggle Tabs */}
+          <div style={{
+            display: 'flex',
+            backgroundColor: '#1a1a1a',
+            borderRadius: '12px',
+            padding: '4px',
+            marginBottom: '20px'
+          }}>
+            <button
+              onClick={() => handleTabChange('life')}
+              style={{
+                flex: 1,
+                padding: '12px 16px',
+                borderRadius: '10px',
+                border: 'none',
+                backgroundColor: activeTab === 'life' ? '#ffffff' : 'transparent',
+                color: activeTab === 'life' ? '#000000' : '#888',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              Life License
+            </button>
+            <button
+              onClick={() => handleTabChange('securities')}
+              style={{
+                flex: 1,
+                padding: '12px 16px',
+                borderRadius: '10px',
+                border: 'none',
+                backgroundColor: activeTab === 'securities' ? '#ffffff' : 'transparent',
+                color: activeTab === 'securities' ? '#000000' : '#888',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              Securities License
+            </button>
           </div>
 
-          {/* License Tabs */}
-          <div className="licensing-tabs">
-            {licenseTabs.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => handleTabClick(tab)}
-                className={`licensing-tab ${activeTab === tab ? 'active' : ''}`}
-              >
-                {tab === 'Life insurance license' ? 'Life License' : 'Securities License'}
-              </button>
-            ))}
-          </div>
-
-          {/* Content */}
-          {isLoadingLicenses ? (
-            <div className="loading-container">
-              <div className="loader"></div>
-              <p className="loading-text">Loading content...</p>
-            </div>
-          ) : licenseItems.length === 0 ? (
-            <div className="empty-state">
-              <svg width="64" height="64" fill="none" stroke="#666" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <h3>No Content Available</h3>
-              <p>There are no materials available for this license type yet.</p>
+          {/* Categories List */}
+          {categories.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+              <p>No categories available yet.</p>
             </div>
           ) : (
-            <div className="licensing-grid">
-              {licenseItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="licensing-card"
-                  onClick={() => handleLicenseItemClick(item.url)}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => handleCategoryClick(category)}
+                  style={{
+                    backgroundColor: '#1a1a1a',
+                    border: '1px solid #2a2a2a',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    width: '100%'
+                  }}
                 >
-                  <div className="licensing-image">
-                    <img
-                      src={item.image_url || '/assets/logo.jpg'}
-                      alt={item.title}
-                      onError={(e) => {
-                        e.target.src = '/assets/logo.jpg';
-                      }}
-                    />
-                    {item.url && (
-                      <div className="licensing-overlay">
-                        <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                      </div>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '8px',
+                    backgroundColor: '#0a0a0a',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <img src={logo} alt="KLB" style={{ width: '32px', height: 'auto' }} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{
+                      color: '#ffffff',
+                      fontSize: '1rem',
+                      fontWeight: '600',
+                      marginBottom: '4px'
+                    }}>{category.name}</div>
+                    {category.description && (
+                      <div style={{
+                        color: '#888',
+                        fontSize: '0.85rem'
+                      }}>{category.description}</div>
                     )}
                   </div>
-
-                  <div className="licensing-content">
-                    <h3 className="licensing-title">{item.title}</h3>
-                    {item.description && (
-                      <p className="licensing-description">{item.description}</p>
-                    )}
-                  </div>
-                </div>
+                  <span style={{ color: '#666', fontSize: '1.2rem' }}>→</span>
+                </button>
               ))}
             </div>
           )}
         </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNav
+        activeTab="licensing"
+        onTabChange={handleNavTabChange}
+        user={userProfile}
+      />
     </div>
   );
 }

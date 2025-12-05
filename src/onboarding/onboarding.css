@@ -178,7 +178,7 @@
   }
   
   .verify-accent {
-    color: #ff0000;
+    color: #ffffff;
   }
   
   /* PENDING VERIFICATION STYLES */
@@ -228,7 +228,7 @@
     width: 12px;
     height: 12px;
     border: 2px solid #444;
-    border-top: 2px solid #ff4444;
+    border-top: 2px solid #ffffff;
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }
@@ -266,7 +266,7 @@
   
   /* EMAIL VERIFY BUTTONS */
   .verify-primary-button {
-    background-color: #ff0000;
+    background-color: #ffffff;
     color: white;
     border: none;
     padding: 16px 32px;
@@ -310,7 +310,7 @@
   
   .verify-secondary-button:hover {
     background-color: #3d3d3d;
-    border-color: #ff0000;
+    border-color: #ffffff;
   }
   
   .verify-link-button {
@@ -326,7 +326,7 @@
   }
   
   .verify-link-button:hover {
-    color: #ff0000;
+    color: #ffffff;
   }
   
   /* ============================================
@@ -353,7 +353,7 @@
   }
   
   .newpass-accent {
-    color: #ff0000;
+    color: #ffffff;
   }
   
   .newpass-subtitle {
@@ -407,7 +407,7 @@
   
   .newpass-input:focus {
     outline: none;
-    border-color: #ff0000;
+    border-color: #ffffff;
     box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.15);
   }
   
@@ -444,7 +444,7 @@
   
   /* NEW PASSWORD PRIMARY BUTTON - RED */
   .newpass-primary-button {
-    background-color: #ff0000;
+    background-color: #ffffff;
     color: white;
     border: none;
     padding: 16px 32px;
@@ -480,7 +480,7 @@
   }
   
   .newpass-link-button:hover {
-    color: #ff0000;
+    color: #ffffff;
   }
   
   .newpass-loading {
@@ -640,7 +640,7 @@
   }
   
   .forgot-accent {
-    color: #ff0000;
+    color: #ffffff;
   }
   
   .forgot-subtitle {
@@ -688,13 +688,13 @@
   
   .forgot-input:focus {
     outline: none;
-    border-color: #ff0000;
+    border-color: #ffffff;
     box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.15);
   }
   
   /* FORGOT PASSWORD PRIMARY BUTTON - RED */
   .forgot-primary-button {
-    background-color: #ff0000;
+    background-color: #ffffff;
     color: white;
     border: none;
     padding: 16px 32px;
@@ -730,7 +730,7 @@
   }
   
   .forgot-link-button:hover {
-    color: #ff0000;
+    color: #ffffff;
   }
   
   .forgot-loading {
@@ -790,176 +790,284 @@
   }
   
   /* ============================================
-     LOGIN SCREEN STYLES - COMPLETE CONTROL
+     LOGIN SCREEN STYLES - CLEAN MODERN
      ============================================ */
-  
+
   .login-container {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
-    justify-content: center !important;
+    justify-content: flex-start !important;
     min-height: 100vh !important;
-    padding: 40px 20px 60px 20px !important;
-    background-color: #000000 !important;
+    padding: 18vh 24px 60px 24px !important;
+    background-color: #0a0a0a !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
+    position: relative !important;
   }
-  
-  .login-title {
-    font-size: 2.8rem !important;
-    color: #ffffff !important;
-    margin-bottom: 3rem !important;
-    text-align: center !important;
-    font-weight: 600 !important;
+
+  .login-logo {
+    width: 280px;
+    height: auto;
+    margin-bottom: 2.5rem;
+    object-fit: contain;
   }
-  
-  .login-accent {
-    color: #ff0000 !important;
-  }
-  
+
   .login-input-container {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 20px;
+    align-items: stretch;
+    gap: 12px;
     width: 100%;
-    max-width: 280px; /* EXACT CONTROL */
-    margin-bottom: 2.5rem;
+    max-width: 320px;
+    margin-bottom: 1.5rem;
   }
-  
+
   .login-input {
-    background-color: #2d2d2d;
-    border: 1px solid #444;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
     color: #ffffff;
-    padding: 16px 18px;
-    border-radius: 10px;
-    font-size: 1rem;
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-size: 16px;
     width: 100%;
     box-sizing: border-box;
     transition: all 0.2s ease;
   }
-  
+
   .login-input::placeholder {
-    color: #888;
+    color: #666;
   }
-  
+
   .login-input:focus {
     outline: none;
-    border-color: #ff0000;
-    box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.15);
+    border-color: #ffffff;
+    background-color: #1f1f1f;
   }
-  
+
   .login-password-wrapper {
     position: relative;
     width: 100%;
   }
-  
+
   .login-password-input {
-    padding-right: 50px;
+    padding-right: 60px;
   }
-  
+
   .login-toggle-button {
     position: absolute;
-    right: 15px;
+    right: 14px;
     top: 50%;
     transform: translateY(-50%);
     background: none;
     color: #888;
     border: none;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 4px;
     cursor: pointer;
-    font-size: 1.1rem;
+    font-size: 13px;
+    font-weight: 500;
     transition: color 0.2s ease;
   }
-  
+
   .login-toggle-button:hover {
     color: #ffffff;
   }
-  
-  /* LOGIN PRIMARY BUTTON - RED */
-  .login-primary-button {
-    background-color: #ff0000;
-    color: white;
+
+  .login-forgot-link {
+    background: none;
     border: none;
-    padding: 16px 32px;
-    border-radius: 10px;
-    font-size: 1rem;
+    color: #888;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 0;
+    text-align: center;
+    align-self: center;
+    transition: color 0.2s ease;
+  }
+
+  .login-forgot-link:hover {
+    color: #ffffff;
+  }
+
+  /* LOGIN PRIMARY BUTTON */
+  .login-primary-button {
+    background-color: #ffffff;
+    color: #000000;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 8px;
+    font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     width: 100%;
-    max-width: 280px; /* MATCHES INPUT CONTAINER */
-    margin: 12px 0;
+    max-width: 320px;
     box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 54px;
+    min-height: 50px;
+    transition: all 0.2s ease;
   }
-  
+
+  .login-primary-button:hover {
+    background-color: #e5e5e5;
+  }
+
   .login-primary-button:disabled {
-    background-color: #666;
+    background-color: #333;
+    color: #666;
     cursor: not-allowed;
   }
-  
-  /* LOGIN SECONDARY BUTTON - GRAY */
-  .login-secondary-button {
-    background-color: #2d2d2d;
-    color: white;
-    border: 1px solid #555;
-    padding: 16px 32px;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    width: 100%;
-    max-width: 280px; /* MATCHES INPUT CONTAINER */
-    margin: 8px 0;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 54px;
+
+  .login-signup-text {
+    color: #888;
+    font-size: 14px;
+    margin-top: 24px;
+    text-align: center;
   }
-  
-  .login-secondary-button:hover {
-    background-color: #3d3d3d;
-    border-color: #ff0000;
-  }
-  
-  .login-link-button {
+
+  .login-signup-link {
     background: none;
-    color: #999;
     border: none;
-    font-size: 0.95rem;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
-    margin: 20px 0 0 0;
-    text-decoration: underline;
-    padding: 12px;
-    transition: color 0.2s ease;
+    padding: 0;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
   }
-  
-  .login-link-button:hover {
-    color: #ff0000;
+
+  .login-signup-link:hover {
+    opacity: 0.8;
   }
-  
+
   .login-loading {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
   }
-  
+
   .login-spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    width: 24px;
+    height: 24px;
+    border: 2px solid #333;
     border-top: 2px solid #ffffff;
     border-radius: 50%;
     animation: spin 1s linear infinite;
+  }
+
+  .login-spinner-btn {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(0,0,0,0.2);
+    border-top: 2px solid #000000;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  .login-divider {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 320px;
+    margin: 20px 0;
+  }
+
+  .login-divider-line {
+    flex: 1;
+    height: 1px;
+    background-color: #333;
+  }
+
+  .login-divider-text {
+    color: #666;
+    font-size: 13px;
+    padding: 0 16px;
+  }
+
+  .login-google-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background-color: #1a1a1a;
+    color: #ffffff;
+    border: 1px solid #333;
+    padding: 14px 24px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    max-width: 320px;
+    box-sizing: border-box;
+    min-height: 50px;
+    transition: all 0.2s ease;
+  }
+
+  .login-google-button:hover {
+    background-color: #222;
+    border-color: #444;
+  }
+
+  .login-google-icon {
+    flex-shrink: 0;
+  }
+
+  .login-otp-button {
+    background-color: transparent;
+    color: #888;
+    border: 1px solid #333;
+    padding: 14px 24px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    max-width: 320px;
+    box-sizing: border-box;
+    min-height: 50px;
+    margin-top: 10px;
+    transition: all 0.2s ease;
+  }
+
+  .login-otp-button:hover {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    border-color: #444;
+  }
+
+  .login-footer {
+    position: absolute;
+    bottom: 20px;
+    font-size: 10px;
+    color: #333;
+    margin: 0;
+  }
+
+  /* Create Account additional styles */
+  .create-login-text {
+    color: #888;
+    font-size: 14px;
+    margin-top: 24px;
+    text-align: center;
+  }
+
+  .create-login-link {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .create-login-link:hover {
+    opacity: 0.8;
   }
   
   /* ============================================
@@ -987,7 +1095,7 @@
   }
   
   .create-accent {
-    color: #ff0000 !important;
+    color: #ffffff !important;
   }
   
   .create-subtitle {
@@ -1026,7 +1134,7 @@
   
   .create-input:focus {
     outline: none;
-    border-color: #ff0000;
+    border-color: #ffffff;
     box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.15);
   }
   
@@ -1063,7 +1171,7 @@
   
   /* CREATE ACCOUNT PRIMARY BUTTON - RED */
   .create-primary-button {
-    background-color: #ff0000;
+    background-color: #ffffff;
     color: white;
     border: none;
     padding: 16px 32px;
@@ -1099,7 +1207,7 @@
   }
   
   .create-link-button:hover {
-    color: #ff0000;
+    color: #ffffff;
   }
   
   .create-loading {
@@ -1130,75 +1238,44 @@
   /* ============================================
      MOBILE RESPONSIVE - LOGIN SCREEN
      ============================================ */
-  
+
   @media (max-width: 768px) {
     .login-container {
-      padding: 30px 20px;
-      justify-content: center;
+      padding: 14vh 20px 60px 20px !important;
     }
-    
-    .login-title {
-      font-size: 2.2rem;
+
+    .login-logo {
+      width: 240px;
       margin-bottom: 2rem;
     }
-    
+
     .login-input-container {
-      max-width: 260px; /* SMALLER ON MOBILE */
-      gap: 18px;
-      margin-bottom: 2rem;
+      max-width: 100%;
     }
-    
+
     .login-primary-button {
-      max-width: 260px; /* MATCHES INPUT */
-    }
-    
-    .login-secondary-button {
-      max-width: 260px; /* MATCHES INPUT */
-    }
-    
-    .login-input {
-      padding: 14px 16px;
-      font-size: 1rem;
-    }
-    
-    .login-password-input {
-      padding-right: 45px;
-    }
-    
-    .login-toggle-button {
-      right: 12px;
-      width: 22px;
-      height: 22px;
-    }
-    
-    .login-primary-button,
-    .login-secondary-button {
-      padding: 14px 24px;
-      font-size: 0.95rem;
-      min-height: 50px;
+      max-width: 100%;
     }
   }
-  
+
   @media (max-width: 480px) {
     .login-container {
-      padding: 20px 15px;
-      justify-content: center;
+      padding: 12vh 16px 60px 16px !important;
     }
-    
-    .login-title {
-      font-size: 2rem;
+
+    .login-logo {
+      width: 220px;
+      margin-bottom: 1.5rem;
     }
-    
-    .login-input-container {
-      max-width: 240px; /* EVEN SMALLER */
+
+    .login-input {
+      padding: 12px 14px;
+      font-size: 16px;
     }
-    
+
     .login-primary-button {
-      max-width: 240px;
-    }
-    
-    .login-secondary-button {
-      max-width: 240px;
+      padding: 12px 20px;
+      min-height: 46px;
     }
   }
   

@@ -61,7 +61,7 @@ function EmailVerify() {
 
   return (
     <div className="verify-container">
-      <h1 className="verify-title">Team Ins<span className="verify-accent">p</span>ire</h1>
+      <h1 className="verify-title">KLB</h1>
       
       {!isVerified ? (
         <>

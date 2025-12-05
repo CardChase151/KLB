@@ -4,16 +4,18 @@ import { supabase } from '../supabaseClient';
 import BottomNav from '../bottomnav/bottomnav';
 import './content.css';
 import '../onboarding/onboarding.css';
+import logo from '../assets/klb-logo.png';
 
 function Home() {
   const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('home');
+  const [homeContent, setHomeContent] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('🏠 HOME.JS LOADED - Team Inspire!');
+    console.log('🏠 HOME.JS LOADED - KLB!');
     // Check if user is logged in
     const checkUser = async () => {
       try {
@@ -48,6 +50,9 @@ function Home() {
           console.log('No profile found or error:', profileError);
         }
 
+        // Load home content
+        loadHomeContent();
+
         setLoading(false);
       } catch (error) {
         console.error('Unexpected error in checkUser:', error);
@@ -69,6 +74,21 @@ function Home() {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const loadHomeContent = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('home_content')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+
+      if (error) throw error;
+      setHomeContent(data || []);
+    } catch (error) {
+      console.error('Error loading home content:', error);
+    }
+  };
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -106,37 +126,103 @@ function Home() {
       case 'home':
         return (
           <div className="home-content">
-            {/* Logo and Welcome */}
+            {/* Logo */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
+              <img src={logo} alt="KLB" style={{ width: '200px', height: 'auto' }} />
+            </div>
+
+            {/* Welcome */}
             <div className="welcome-section">
               <h2 className="welcome-title">
                 Welcome, {userProfile?.first_name || user?.email?.split('@')[0] || 'User'}!
               </h2>
+              <p style={{
+                color: '#666',
+                fontSize: '0.85rem',
+                margin: '8px 0 0 0',
+                fontWeight: '400',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '4px'
+              }}>
+                <span>Scroll down for more content</span>
+                <span style={{ fontSize: '1.2rem', opacity: 0.7, letterSpacing: '8px' }}>&#8964; &#8964; &#8964;</span>
+              </p>
             </div>
 
-            {/* VP Message Card */}
-            <div className="vp-message-card">
-              <h3 className="vp-message-title">
-                Message from Leadership
-              </h3>
-              <p className="vp-names">
-                Tom and Heidi Kellis!
-              </p>
-              
-              <div className="vp-message-content" style={{ textAlign: 'center' }}>
-                <p>
-                  As an Executive VP of a billion-dollar corporation, making great money in my early 30's, I still felt trapped. No time freedom, no real freedom at all, and my 4 kids were growing up fast!
-                </p>
-                <p>
-                  Then I was introduced to Primerica and I started my firm over 20 years ago and have never looked back. We've been blessed! My wife was able to home-school the kids and we have been able to travel the world, really enjoying life.
-                </p>
-                <p>
-                  Now my wife and 2 of my kids have joined me in establishing this as a family business and we are in several states and growing!
-                </p>
-                <p className="vp-mission">
-                  My mission statement has always been to glorify God by being an honest, loving, and caring leader who listens, teaches, and inspires those around me to reach their full potential!
-                </p>
+            {/* Dynamic Content from Admin */}
+            {homeContent.length > 0 && (
+              <div style={{ marginTop: '2rem', marginLeft: '16px', marginRight: '16px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {homeContent.map((item) => (
+                  <div
+                    key={item.id}
+                    style={{
+                      backgroundColor: '#1a1a1a',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      border: '1px solid #2a2a2a'
+                    }}
+                  >
+                    {/* Image */}
+                    {(item.image_url || item.use_logo) && (
+                      <div style={{ marginBottom: '12px', borderRadius: '8px', overflow: 'hidden', display: 'flex', justifyContent: item.use_logo ? 'center' : 'flex-start', backgroundColor: item.use_logo ? '#0a0a0a' : 'transparent', padding: item.use_logo ? '1rem' : '0' }}>
+                        <img
+                          src={item.use_logo ? logo : item.image_url}
+                          alt={item.title}
+                          style={{ width: item.use_logo ? '100px' : '100%', height: 'auto', display: 'block' }}
+                        />
+                      </div>
+                    )}
+
+                    {/* Title */}
+                    <h3 style={{
+                      color: '#ffffff',
+                      fontSize: '1.1rem',
+                      fontWeight: '600',
+                      margin: '0 0 8px 0'
+                    }}>
+                      {item.title}
+                    </h3>
+
+                    {/* Description */}
+                    {item.description && (
+                      <p style={{
+                        color: '#888',
+                        fontSize: '0.9rem',
+                        margin: '0 0 12px 0',
+                        lineHeight: '1.5'
+                      }}>
+                        {item.description}
+                      </p>
+                    )}
+
+                    {/* Link Button */}
+                    {item.url && (
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          backgroundColor: 'transparent',
+                          color: '#4da6ff',
+                          padding: '8px 0',
+                          textDecoration: 'none',
+                          fontSize: '0.9rem',
+                          fontWeight: '500'
+                        }}
+                      >
+                        {item.link_title || 'Learn More'}
+                        <span style={{ fontSize: '0.8rem' }}>→</span>
+                      </a>
+                    )}
+                  </div>
+                ))}
               </div>
-            </div>
+            )}
           </div>
         );
       
@@ -171,9 +257,9 @@ function Home() {
         zIndex: '999'
       }}></div>
 
-      {/* New Rep Start Banner - Below dynamic bar */}
+      {/* 10 Day Launch Banner - Below dynamic bar */}
       <div onClick={handleNewRepStart} style={{
-        backgroundColor: '#ff0000',
+        backgroundColor: '#1a1a1a',
         color: '#ffffff',
         padding: '16px 20px',
         display: 'flex',
@@ -181,7 +267,7 @@ function Home() {
         justifyContent: 'space-between',
         width: '95%',
         margin: '0 auto 0 auto',
-        fontWeight: '600',
+        fontWeight: '700',
         fontSize: '1rem',
         cursor: 'pointer',
         borderRadius: '8px',
@@ -189,9 +275,10 @@ function Home() {
         top: '60px',
         left: '50%',
         transform: 'translateX(-50%)',
-        zIndex: '1000'
+        zIndex: '1000',
+        border: '1px solid #333'
       }}>
-        <span>New Rep Start</span>
+        <span>10 DAY LAUNCH</span>
         <span>→</span>
       </div>
 
@@ -207,33 +294,8 @@ function Home() {
         touchAction: 'pan-y'
       }}>
         <div className="app-container" style={{marginTop: '0', minHeight: '100%', paddingBottom: '20px'}}>
-          <h1 className="app-title">Team Ins<span className="brand-accent">p</span>ire</h1>
           {renderContent()}
 
-          {/* Footer */}
-          <div style={{
-            textAlign: 'center',
-            padding: '20px',
-            marginTop: '40px',
-            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-            fontSize: '0.75rem',
-            color: '#666666'
-          }}>
-            <a
-              href="https://appcatalyst.org"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                color: '#007bff',
-                textDecoration: 'none',
-                transition: 'color 0.2s ease'
-              }}
-              onMouseEnter={(e) => e.target.style.color = '#0056b3'}
-              onMouseLeave={(e) => e.target.style.color = '#007bff'}
-            >
-              Built by AppCatalyst
-            </a>
-          </div>
         </div>
       </div>
 

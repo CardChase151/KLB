@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import BottomNav from '../bottomnav/bottomnav';
 import './content.css';
 
 function Calculator() {
   const [user, setUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [position, setPosition] = useState('');
   const [section, setSection] = useState('');
@@ -28,7 +30,31 @@ function Calculator() {
     }
 
     setUser(session.user);
+
+    // Get user profile
+    const { data: profile } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profile) {
+      setUserProfile(profile);
+    }
+
     setLoading(false);
+  };
+
+  const handleNavTabChange = (tab) => {
+    if (tab === 'home') {
+      navigate('/home');
+    } else if (tab === 'training') {
+      navigate('/training');
+    } else if (tab === 'schedule') {
+      navigate('/schedule');
+    } else if (tab === 'licensing') {
+      navigate('/licensing');
+    }
   };
 
   const resetCalculator = () => {
@@ -191,84 +217,80 @@ function Calculator() {
       left: '0',
       right: '0',
       bottom: '0',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      backgroundColor: '#0a0a0a'
     }}>
-      {/* Dynamic Bar Background - Black */}
+      {/* Header */}
       <div style={{
-        backgroundColor: '#000000',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '12px 16px',
+        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)',
+        backgroundColor: '#0a0a0a',
+        flexShrink: 0,
         position: 'fixed',
-        top: '0',
-        left: '0',
-        right: '0',
-        height: '60px',
-        zIndex: '999'
-      }}></div>
-
-      {/* Back Button - Fixed Position */}
-      <button
-        onClick={handleBackToHome}
-        style={{
-          position: 'fixed',
-          top: '70px',
-          left: '20px',
-          zIndex: '1000',
-          width: '36px',
-          height: '36px',
-          fontSize: '1.5rem',
-          boxShadow: '0 2px 8px rgba(255, 0, 0, 0.2)',
-          borderRadius: '50%',
-          backgroundColor: '#ff0000',
-          color: '#ffffff',
-          border: 'none',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        gap: '12px'
+      }}>
+        <button onClick={handleBackToHome} style={{
+          width: '40px',
+          height: '40px',
+          borderRadius: '12px',
+          backgroundColor: '#1a1a1a',
+          border: '1px solid #2a2a2a',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '0',
           cursor: 'pointer',
-          fontWeight: 'bold'
-        }}
-      >
-        ←
-      </button>
-
-      {/* Title - Fixed Position */}
-      <div style={{
-        position: 'fixed',
-        top: '70px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: '1000'
-      }}>
-        <h1 className="app-title" style={{margin: '0', fontSize: '2rem'}}>Calculator</h1>
+          color: '#ffffff',
+          fontSize: '1.2rem'
+        }}>←</button>
+        <h1 style={{
+          color: '#ffffff',
+          fontSize: '20px',
+          fontWeight: '700',
+          margin: 0,
+          flex: 1,
+          textAlign: 'center',
+          marginRight: '40px'
+        }}>Calculator</h1>
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: '40px',
+          right: '40px',
+          height: '2px',
+          backgroundColor: 'rgba(255, 255, 255, 0.35)',
+          borderRadius: '1px'
+        }} />
       </div>
 
       {/* Scrollable Content Container */}
       <div style={{
         position: 'fixed',
-        top: '120px',
+        top: 'calc(env(safe-area-inset-top, 0px) + 70px)',
         left: '0',
         right: '0',
-        bottom: '20px',
+        bottom: '100px',
         overflowY: 'auto',
         overflowX: 'hidden',
         touchAction: 'pan-y',
         WebkitOverflowScrolling: 'touch'
       }}>
-        <div className="app-container" style={{
-          marginTop: '0',
-          minHeight: '100%',
-          paddingBottom: '20px',
+        <div style={{
           paddingLeft: '20px',
-          paddingRight: '25px',
-          width: '100%',
-          maxWidth: '100vw',
-          overflowX: 'hidden',
-          boxSizing: 'border-box'
+          paddingRight: '20px',
+          paddingBottom: '20px'
         }}>
-
-          <div className="content-section">
-            <p>Business calculation tools for sales and recruiting</p>
-          </div>
+          <p style={{
+            color: '#888',
+            fontSize: '0.9rem',
+            margin: '0 0 20px 0',
+            textAlign: 'center'
+          }}>Business calculation tools for sales and recruiting</p>
 
           {/* Position Selection */}
           {!position && (
@@ -640,6 +662,13 @@ function Calculator() {
 
         </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNav
+        activeTab="calculator"
+        onTabChange={handleNavTabChange}
+        user={userProfile}
+      />
     </div>
   );
 }

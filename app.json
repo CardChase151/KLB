@@ -1,11 +1,14 @@
 {
   "expo": {
-    "name": "Team Inspire",
-    "slug": "team-inspire",
+    "name": "KLB",
+    "slug": "klb",
     "version": "1.0.0",
-    "platforms": ["ios"],
+    "platforms": ["ios", "android"],
     "ios": {
-      "bundleIdentifier": "com.ac.teamInspire"
+      "bundleIdentifier": "com.k2coach.klb"
+    },
+    "android": {
+      "package": "com.k2coach.klb"
     },
     "web": {
       "build": {

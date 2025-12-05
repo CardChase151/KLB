@@ -52,7 +52,7 @@ function ForgotPassword() {
   if (emailSent) {
     return (
       <div className="forgot-container">
-        <h1 className="forgot-title">Team Ins<span className="forgot-accent">p</span>ire</h1>
+        <h1 className="forgot-title">KLB</h1>
         
         <div className="forgot-success-container">
           <div className="forgot-success-icon">📧</div>
@@ -75,7 +75,7 @@ function ForgotPassword() {
 
   return (
     <div className="forgot-container">
-      <h1 className="forgot-title">Team Ins<span className="forgot-accent">p</span>ire</h1>
+      <h1 className="forgot-title">KLB</h1>
       <h2 className="forgot-subtitle">Reset Password</h2>
       
       <p className="forgot-description">

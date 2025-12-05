@@ -1,6 +1,6 @@
 {
-  "short_name": "Team Inspire",
-  "name": "Team Inspire - Motivation & Team Building",
+  "short_name": "KLB",
+  "name": "Kingdom Legacy Builders",
   "icons": [
     {
       "src": "assets/icons/icon-48.webp",
@@ -47,9 +47,9 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#ff4444",
-  "background_color": "#1a1a1a",
-  "description": "Inspire and motivate your team with Team Inspire",
+  "theme_color": "#ffffff",
+  "background_color": "#000000",
+  "description": "Kingdom Legacy Builders - Building legacies that last",
   "categories": [
     "productivity",
     "business",

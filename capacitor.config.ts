@@ -1,34 +1,15 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.ac.teamInspire',
-  appName: 'Team Inspire',
+  appId: 'com.k2coach.klb',
+  appName: 'KLB',
   webDir: 'build',
-  server: {
-    url: 'https://teaminspire.org',
-    allowNavigation: [
-      'teaminspire.org',
-      '*.teaminspire.org'
-    ]
-  },
   ios: {
     contentInset: 'never',
-    allowsLinkPreview: false,
-    scrollEnabled: false,
-    scheme: 'teaminspire'
+    backgroundColor: '#000000'
   },
   android: {
-    scheme: 'teaminspire'
-  },
-  plugins: {
-    StatusBar: {
-      style: 'dark'
-    },
-    App: {
-      appUrlOpen: {
-        iosCustomScheme: 'teaminspire'
-      }
-    }
+    backgroundColor: '#000000'
   }
 };
 

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { supabase } from './supabaseClient';
+import { Capacitor } from '@capacitor/core';
+import { StatusBar, Style } from '@capacitor/status-bar';
 import Login from './onboarding/login';
 import CreateAccount from './onboarding/createAccount';
 import EmailVerify from './onboarding/emailVerify';
@@ -19,6 +21,7 @@ import ChatMessage from './main/chatmessage';
 import Admin from './admin/admin';
 import Admin2 from './admin/admin2';
 import Profile from './main/profile';
+import Notifications from './main/notifications';
 
 function NavigationWatcher() {
   const location = useLocation();
@@ -35,6 +38,21 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Setup StatusBar for native platforms
+    const setupStatusBar = async () => {
+      if (Capacitor.isNativePlatform()) {
+        try {
+          await StatusBar.setOverlaysWebView({ overlay: true });
+          await StatusBar.setStyle({ style: Style.Dark });
+          await StatusBar.setBackgroundColor({ color: '#000000' });
+        } catch (e) {
+          // StatusBar not available on this platform
+          console.log('StatusBar not available:', e.message);
+        }
+      }
+    };
+    setupStatusBar();
+
     // For now, just set loading to false and don't fetch profiles
     console.log('Setting loading to false immediately');
     setLoading(false);
@@ -82,7 +100,8 @@ function App() {
           <Route path="/chat/create" element={<ChatCreate />} />
           <Route path="/chat/:chatId" element={<ChatMessage />} />
           <Route path="/profile" element={<Profile />} />
-          
+          <Route path="/notifications" element={<Notifications />} />
+
           {/* Admin Routes */}
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin-manage" element={<Admin2 />} />

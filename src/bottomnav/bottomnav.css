@@ -8,14 +8,14 @@
     z-index: 1000;
     transition: all 0.3s ease;
     padding: 14px 16px !important;
-    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+    padding-bottom: 24px;
     touch-action: none;
     overflow: hidden;
   }
   
   .bottom-nav.expanded {
     padding: 24px 16px;
-    padding-bottom: calc(36px + env(safe-area-inset-bottom));
+    padding-bottom: 36px;
     touch-action: none;
     overflow: hidden;
   }
@@ -90,7 +90,7 @@
     position: absolute;
     top: -6px;
     right: -8px;
-    background-color: #ff0000;
+    background-color: #ffffff;
     color: #ffffff;
     font-size: 0.65rem;
     font-weight: 600;
@@ -114,12 +114,12 @@
   @media (max-width: 768px) {
     .bottom-nav {
       padding: 8px 12px;
-      padding-bottom: calc(20px + env(safe-area-inset-bottom));
+      padding-bottom: 20px;
     }
     
     .bottom-nav.expanded {
       padding: 16px 12px;
-      padding-bottom: calc(28px + env(safe-area-inset-bottom));
+      padding-bottom: 28px;
     }
     
     .nav-button {

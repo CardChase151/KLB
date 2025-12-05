@@ -373,7 +373,7 @@ function ChatCreate() {
           fontSize: '1.5rem',
           boxShadow: '0 2px 8px rgba(255, 0, 0, 0.2)',
           borderRadius: '50%',
-          backgroundColor: '#ff0000',
+          backgroundColor: '#ffffff',
           color: '#ffffff',
           border: 'none',
           display: 'flex',

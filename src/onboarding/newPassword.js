@@ -81,7 +81,7 @@ function NewPassword() {
   if (!hasValidSession) {
     return (
       <div className="newpass-container">
-        <h1 className="newpass-title">Team Ins<span className="newpass-accent">p</span>ire</h1>
+        <h1 className="newpass-title">KLB</h1>
         <p className="newpass-loading-text">Loading...</p>
       </div>
     );
@@ -90,7 +90,7 @@ function NewPassword() {
   if (isSuccess) {
     return (
       <div className="newpass-container">
-        <h1 className="newpass-title">Team Ins<span className="newpass-accent">p</span>ire</h1>
+        <h1 className="newpass-title">KLB</h1>
         
         <div className="newpass-success-container">
           <div className="newpass-success-icon">✓</div>
@@ -106,7 +106,7 @@ function NewPassword() {
 
   return (
     <div className="newpass-container">
-      <h1 className="newpass-title">Team Ins<span className="newpass-accent">p</span>ire</h1>
+      <h1 className="newpass-title">KLB</h1>
       <h2 className="newpass-subtitle">Reset Password</h2>
       
       <p className="newpass-description">

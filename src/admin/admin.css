@@ -3,7 +3,7 @@
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    padding: 20px;
+    padding: 0 20px 20px 20px;
     background-color: #000000;
     box-sizing: border-box;
     color: #ffffff;
@@ -18,9 +18,9 @@
   }
 
   .image-upload-button {
-    background-color: #ff0000;
+    background-color: #333;
     color: #ffffff;
-    border: none;
+    border: 1px solid #555;
     padding: 10px 20px;
     border-radius: 6px;
     font-size: 0.9rem;
@@ -31,11 +31,12 @@
   }
 
   .image-upload-button:hover {
-    background-color: #e60000;
+    background-color: #444;
+    border-color: #888;
   }
 
   .image-upload-button:active {
-    background-color: #cc0000;
+    background-color: #555;
   }
 
   /* Admin Content Item with Thumbnail */
@@ -75,18 +76,20 @@
   }
   
   .brand-accent {
-    color: #ff0000;
+    color: #ffffff;
   }
   
   .admin-welcome {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
     max-width: 400px;
+    padding-top: 0;
   }
-  
+
   .admin-lock-icon {
     font-size: 3rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
+    margin-top: 12px;
     opacity: 0.8;
   }
   
@@ -102,8 +105,10 @@
   }
   
   .admin-subtitle {
-    color: #ff0000 !important;
+    color: #888 !important;
     font-style: italic;
+    margin-top: 12px !important;
+    margin-bottom: 0 !important;
   }
   
   .admin-menu {
@@ -136,7 +141,7 @@
   
   .admin-menu-button:hover {
     background-color: #2a2a2a;
-    border-color: #ff0000;
+    border-color: #ffffff;
     transform: translateY(-2px);
   }
   
@@ -178,7 +183,7 @@
   }
   
   .admin-menu-button:hover .admin-menu-arrow {
-    color: #ff0000;
+    color: #ffffff;
   }
   
   .admin-stats {
@@ -200,13 +205,13 @@
   }
   
   .admin-stat-card:hover {
-    border-color: #ff0000;
+    border-color: #ffffff;
   }
   
   .admin-stat-number {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #ff0000;
+    color: #ffffff;
     margin-bottom: 0.5rem;
   }
   
@@ -230,14 +235,14 @@
   }
   
   .admin-back-button:hover {
-    color: #ff0000;
+    color: #ffffff;
   }
   
   .admin-spinner {
     width: 32px;
     height: 32px;
     border: 3px solid #444;
-    border-top: 3px solid #ff0000;
+    border-top: 3px solid #ffffff;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 2rem auto;
@@ -302,6 +307,7 @@
     align-items: center;
     width: 100%;
     max-width: 800px;
+    margin-top: 1rem;
     margin-bottom: 2rem;
     gap: 1rem;
     flex-wrap: wrap;
@@ -324,7 +330,7 @@
   
   .admin-select:focus {
     outline: none;
-    border-color: #ff0000;
+    border-color: #ffffff;
   }
   
   .admin-form-overlay {
@@ -394,8 +400,8 @@
   .admin-form-group textarea:focus,
   .admin-form-group select:focus {
     outline: none;
-    border-color: #ff0000;
-    box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.2);
+    border-color: #ffffff;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
   }
   
   .admin-form-group textarea {
@@ -412,8 +418,8 @@
 
   /* Primary and Secondary Button Styles */
   .button-primary {
-    background-color: #ff0000;
-    color: #ffffff;
+    background-color: #ffffff;
+    color: #000000;
     border: none;
     padding: 12px 24px;
     border-radius: 8px;
@@ -428,15 +434,16 @@
   }
 
   .button-primary:hover {
-    background-color: #e60000;
+    background-color: #e0e0e0;
   }
 
   .button-primary:active {
-    background-color: #cc0000;
+    background-color: #cccccc;
   }
 
   .button-primary:disabled {
     background-color: #666;
+    color: #999;
     cursor: not-allowed;
   }
 
@@ -458,7 +465,7 @@
 
   .button-secondary:hover {
     background-color: #3d3d3d;
-    border-color: #ff0000;
+    border-color: #ffffff;
   }
 
   .button-secondary:active {
@@ -524,7 +531,7 @@
   }
   
   .admin-content-item:hover {
-    border-color: #ff0000;
+    border-color: #ffffff;
   }
   
   .admin-content-info {
@@ -552,7 +559,7 @@
   }
   
   .admin-content-category {
-    background-color: #ff0000;
+    background-color: #333;
     color: #ffffff;
     padding: 4px 8px;
     border-radius: 4px;
@@ -575,18 +582,19 @@
   }
   
   .admin-content-link {
-    color: #ff0000;
+    color: #ffffff;
     text-decoration: none;
     font-size: 0.8rem;
-    border: 1px solid #ff0000;
+    border: 1px solid #555;
     padding: 4px 8px;
     border-radius: 4px;
     transition: all 0.2s ease;
   }
-  
+
   .admin-content-link:hover {
-    background-color: #ff0000;
-    color: #ffffff;
+    background-color: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
   }
   
   .admin-content-actions {
@@ -608,23 +616,25 @@
   }
   
   .admin-action-button.edit {
-    color: #4CAF50;
-    border-color: #4CAF50;
+    color: #888;
+    border-color: #555;
   }
-  
+
   .admin-action-button.edit:hover {
-    background-color: #4CAF50;
+    background-color: #333;
     color: #ffffff;
+    border-color: #888;
   }
-  
+
   .admin-action-button.delete {
-    color: #f44336;
-    border-color: #f44336;
+    color: #888;
+    border-color: #555;
   }
-  
+
   .admin-action-button.delete:hover {
-    background-color: #f44336;
+    background-color: #333;
     color: #ffffff;
+    border-color: #888;
   }
   
   /* Mobile responsive for admin2 */

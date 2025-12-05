@@ -1,27 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import BottomNav from '../bottomnav/bottomnav';
 import './content.css';
+import logo from '../assets/klb-logo.png';
 
 function Training() {
   const [user, setUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [contentItems, setContentItems] = useState([]);
   const [isLoadingContent, setIsLoadingContent] = useState(false);
   const navigate = useNavigate();
-
-  // Training categories matching admin system
-  const trainingCategories = [
-    'Setting appointments',
-    'First appointment',
-    'Preparing a plan',
-    'Second appointment',
-    'Investments',
-    'Deliver Policy',
-    'Leadership training',
-    'Additional content'
-  ];
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -30,23 +22,63 @@ function Training() {
 
   const checkUser = async () => {
     const { data: { session }, error } = await supabase.auth.getSession();
-    
+
     if (error || !session) {
       navigate('/', { replace: true });
       return;
     }
 
     setUser(session.user);
+
+    // Get user profile
+    const { data: profile } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profile) {
+      setUserProfile(profile);
+    }
+
     setLoading(false);
+    loadCategories();
   };
 
-  const loadCategoryContent = async (category) => {
+  const handleNavTabChange = (tab) => {
+    if (tab === 'home') {
+      navigate('/home');
+    } else if (tab === 'schedule') {
+      navigate('/schedule');
+    } else if (tab === 'licensing') {
+      navigate('/licensing');
+    } else if (tab === 'calculator') {
+      navigate('/calculator');
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('training_categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    }
+  };
+
+  const loadCategoryContent = async (categoryName) => {
     setIsLoadingContent(true);
     try {
       const { data, error } = await supabase
         .from('training_content')
         .select('*')
-        .eq('category', category)
+        .eq('category', categoryName)
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
 
@@ -54,7 +86,6 @@ function Training() {
       setContentItems(data || []);
     } catch (error) {
       console.error('Error loading content:', error);
-      alert('Error loading content: ' + error.message);
     } finally {
       setIsLoadingContent(false);
     }
@@ -63,7 +94,7 @@ function Training() {
   const handleCategoryClick = (category) => {
     window.scrollTo(0, 0);
     setSelectedCategory(category);
-    loadCategoryContent(category);
+    loadCategoryContent(category.name);
   };
 
   const handleBackToCategories = () => {
@@ -74,12 +105,6 @@ function Training() {
 
   const handleBackToHome = () => {
     navigate('/home');
-  };
-
-  const handleContentClick = (url) => {
-    if (url) {
-      window.open(url, '_blank', 'noopener,noreferrer');
-    }
   };
 
   if (loading) {
@@ -99,107 +124,144 @@ function Training() {
         left: '0',
         right: '0',
         bottom: '0',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        backgroundColor: '#0a0a0a'
       }}>
-        {/* Dynamic Bar Background - Black */}
+        {/* Header */}
         <div style={{
-          backgroundColor: '#000000',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '12px 16px',
+          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)',
+          backgroundColor: '#0a0a0a',
+          flexShrink: 0,
           position: 'fixed',
-          top: '0',
-          left: '0',
-          right: '0',
-          height: '60px',
-          zIndex: '999'
-        }}></div>
-
-        {/* Back Button - Fixed Position */}
-        <button
-          onClick={handleBackToHome}
-          style={{
-            position: 'fixed',
-            top: '70px',
-            left: '20px',
-            zIndex: '1000',
-            width: '36px',
-            height: '36px',
-            fontSize: '1.5rem',
-            boxShadow: '0 2px 8px rgba(255, 0, 0, 0.2)',
-            borderRadius: '50%',
-            backgroundColor: '#ff0000',
-            color: '#ffffff',
-            border: 'none',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          gap: '12px'
+        }}>
+          <button onClick={handleBackToHome} style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '12px',
+            backgroundColor: '#1a1a1a',
+            border: '1px solid #2a2a2a',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '0',
             cursor: 'pointer',
-            fontWeight: 'bold'
-          }}
-        >
-          ←
-        </button>
-
-        {/* Title - Fixed Position */}
-        <div style={{
-          position: 'fixed',
-          top: '70px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: '1000'
-        }}>
-          <h1 className="app-title" style={{margin: '0', fontSize: '2rem', whiteSpace: 'nowrap'}}>Training Content</h1>
+            color: '#ffffff',
+            fontSize: '1.2rem'
+          }}>←</button>
+          <h1 style={{
+            color: '#ffffff',
+            fontSize: '20px',
+            fontWeight: '700',
+            margin: 0,
+            flex: 1,
+            textAlign: 'center',
+            marginRight: '40px'
+          }}>Training</h1>
+          <div style={{
+            position: 'absolute',
+            bottom: 0,
+            left: '40px',
+            right: '40px',
+            height: '2px',
+            backgroundColor: 'rgba(255, 255, 255, 0.35)',
+            borderRadius: '1px'
+          }} />
         </div>
 
         {/* Scrollable Content Container */}
         <div style={{
           position: 'fixed',
-          top: '120px',
+          top: 'calc(env(safe-area-inset-top, 0px) + 70px)',
           left: '0',
           right: '0',
-          bottom: '20px',
+          bottom: '100px',
           overflowY: 'auto',
           overflowX: 'hidden',
           touchAction: 'pan-y',
           WebkitOverflowScrolling: 'touch'
         }}>
-          <div className="app-container" style={{
-            marginTop: '0',
-            minHeight: '100%',
-            paddingBottom: '20px',
+          <div style={{
             paddingLeft: '20px',
-            paddingRight: '25px',
-            width: '100%',
-            maxWidth: '100vw',
-            overflowX: 'hidden',
-            boxSizing: 'border-box'
+            paddingRight: '20px',
+            paddingBottom: '20px'
           }}>
+            <p style={{
+              color: '#888',
+              fontSize: '0.9rem',
+              margin: '0 0 20px 0',
+              textAlign: 'center'
+            }}>Choose a training category to view resources</p>
 
-            <div className="content-section">
-              <p>Choose a training category to view available resources</p>
-            </div>
-
-            <div className="training-categories">
-              {trainingCategories.map((category) => (
-                <button
-                  key={category}
-                  className="training-category-card"
-                  onClick={() => handleCategoryClick(category)}
-                >
-                  <div className="training-category-icon">
-                    <img src="/assets/logo.jpg" alt="Team Inspire" />
-                  </div>
-                  <div className="training-category-content">
-                    <div className="training-category-title">{category}</div>
-                    <div className="training-category-subtitle">
-                      Training materials and resources
+            {categories.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+                <p>No categories available yet.</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {categories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => handleCategoryClick(category)}
+                    style={{
+                      backgroundColor: '#1a1a1a',
+                      border: '1px solid #2a2a2a',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      width: '100%'
+                    }}
+                  >
+                    <div style={{
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '8px',
+                      backgroundColor: '#0a0a0a',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0
+                    }}>
+                      <img src={logo} alt="KLB" style={{ width: '32px', height: 'auto' }} />
                     </div>
-                  </div>
-                  <div className="training-category-arrow">→</div>
-                </button>
-              ))}
-            </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{
+                        color: '#ffffff',
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        marginBottom: '4px'
+                      }}>{category.name}</div>
+                      {category.description && (
+                        <div style={{
+                          color: '#888',
+                          fontSize: '0.85rem'
+                        }}>{category.description}</div>
+                      )}
+                    </div>
+                    <span style={{ color: '#666', fontSize: '1.2rem' }}>→</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Bottom Navigation */}
+        <BottomNav
+          activeTab="training"
+          onTabChange={handleNavTabChange}
+          user={userProfile}
+        />
       </div>
     );
   }
@@ -212,61 +274,61 @@ function Training() {
       left: '0',
       right: '0',
       bottom: '0',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      backgroundColor: '#0a0a0a'
     }}>
-      {/* Dynamic Bar Background - Black */}
+      {/* Header */}
       <div style={{
-        backgroundColor: '#000000',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '12px 16px',
+        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)',
+        backgroundColor: '#0a0a0a',
+        flexShrink: 0,
         position: 'fixed',
-        top: '0',
-        left: '0',
-        right: '0',
-        height: '60px',
-        zIndex: '999'
-      }}></div>
-
-      {/* Back Button - Fixed Position */}
-      <button
-        onClick={handleBackToCategories}
-        style={{
-          position: 'fixed',
-          top: '70px',
-          left: '20px',
-          zIndex: '1000',
-          width: '36px',
-          height: '36px',
-          fontSize: '1.5rem',
-          boxShadow: '0 2px 8px rgba(255, 0, 0, 0.2)',
-          borderRadius: '50%',
-          backgroundColor: '#ff0000',
-          color: '#ffffff',
-          border: 'none',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        gap: '12px'
+      }}>
+        <button onClick={handleBackToCategories} style={{
+          width: '40px',
+          height: '40px',
+          borderRadius: '12px',
+          backgroundColor: '#1a1a1a',
+          border: '1px solid #2a2a2a',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '0',
           cursor: 'pointer',
-          fontWeight: 'bold'
-        }}
-      >
-        ←
-      </button>
-
-      {/* Title - Fixed Position */}
-      <div style={{
-        position: 'fixed',
-        top: '70px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: '1000'
-      }}>
-        <h1 className="app-title" style={{margin: '0', fontSize: '2rem', whiteSpace: 'nowrap'}}>Training Content</h1>
+          color: '#ffffff',
+          fontSize: '1.2rem'
+        }}>←</button>
+        <h1 style={{
+          color: '#ffffff',
+          fontSize: '20px',
+          fontWeight: '700',
+          margin: 0,
+          flex: 1,
+          textAlign: 'center',
+          marginRight: '40px'
+        }}>{selectedCategory.name}</h1>
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: '40px',
+          right: '40px',
+          height: '2px',
+          backgroundColor: 'rgba(255, 255, 255, 0.35)',
+          borderRadius: '1px'
+        }} />
       </div>
 
       {/* Scrollable Content Container */}
       <div style={{
         position: 'fixed',
-        top: '120px',
+        top: 'calc(env(safe-area-inset-top, 0px) + 70px)',
         left: '0',
         right: '0',
         bottom: '100px',
@@ -275,90 +337,108 @@ function Training() {
         touchAction: 'pan-y',
         WebkitOverflowScrolling: 'touch'
       }}>
-        <div className="app-container" style={{
-          marginTop: '0',
-          minHeight: '100%',
-          paddingBottom: '20px',
+        <div style={{
           paddingLeft: '20px',
-          paddingRight: '25px',
-          width: '100%',
-          maxWidth: '100vw',
-          overflowX: 'hidden',
-          boxSizing: 'border-box'
+          paddingRight: '20px',
+          paddingBottom: '20px'
         }}>
-
-          <div className="content-section">
-            <h2>{selectedCategory}</h2>
-            <p>Training resources for {selectedCategory.toLowerCase()}</p>
-          </div>
+          {selectedCategory.description && (
+            <p style={{
+              color: '#888',
+              fontSize: '0.9rem',
+              margin: '0 0 20px 0',
+              textAlign: 'center'
+            }}>{selectedCategory.description}</p>
+          )}
 
           {isLoadingContent ? (
-            <div className="loading-container">
-              <div className="loader"></div>
-              <p className="loading-text">Loading content...</p>
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+              <div className="spinner"></div>
             </div>
           ) : contentItems.length === 0 ? (
-            <div className="empty-state">
-              <svg width="64" height="64" fill="none" stroke="#666" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <h3>No Content Available</h3>
-              <p>There are no training materials available for this category yet.</p>
-              <button
-                className="button-primary"
-                onClick={handleBackToCategories}
-              >
-                Browse Other Categories
-              </button>
+            <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+              <p>No content available for this category yet.</p>
             </div>
           ) : (
-            <div className="training-content-grid">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {contentItems.map((item) => (
                 <div
                   key={item.id}
-                  className="training-content-card"
-                  onClick={() => handleContentClick(item.url)}
+                  style={{
+                    backgroundColor: '#1a1a1a',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    border: '1px solid #2a2a2a'
+                  }}
                 >
-                  <div className="training-content-image">
-                    <img
-                      src={item.image_url || '/assets/logo.jpg'}
-                      alt={item.title}
-                      onError={(e) => {
-                        e.target.src = '/assets/logo.jpg';
-                      }}
-                    />
-                    {item.url && (
-                      <div className="training-content-overlay">
-                        <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z"/>
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="training-content-body">
-                    <h3 className="training-content-title">{item.title}</h3>
-                    {item.description && (
-                      <p className="training-content-description">{item.description}</p>
-                    )}
-                    <div className="training-content-meta">
-                      <span className="badge">{item.category}</span>
-                      {item.url && (
-                        <span className="training-meta-item">
-                          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                          </svg>
-                          Open Resource
-                        </span>
-                      )}
+                  {/* Image */}
+                  {(item.image_url || item.use_logo) && (
+                    <div style={{ marginBottom: '12px', borderRadius: '8px', overflow: 'hidden', display: 'flex', justifyContent: item.use_logo ? 'center' : 'flex-start', backgroundColor: item.use_logo ? '#0a0a0a' : 'transparent', padding: item.use_logo ? '1rem' : '0' }}>
+                      <img
+                        src={item.use_logo ? logo : item.image_url}
+                        alt={item.title}
+                        style={{ width: item.use_logo ? '100px' : '100%', height: 'auto', display: 'block' }}
+                      />
                     </div>
-                  </div>
+                  )}
+
+                  {/* Title */}
+                  <h3 style={{
+                    color: '#ffffff',
+                    fontSize: '1.1rem',
+                    fontWeight: '600',
+                    margin: '0 0 8px 0'
+                  }}>
+                    {item.title}
+                  </h3>
+
+                  {/* Description */}
+                  {item.description && (
+                    <p style={{
+                      color: '#888',
+                      fontSize: '0.9rem',
+                      margin: '0 0 12px 0',
+                      lineHeight: '1.5'
+                    }}>
+                      {item.description}
+                    </p>
+                  )}
+
+                  {/* Link Button */}
+                  {item.url && (
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        backgroundColor: 'transparent',
+                        color: '#4da6ff',
+                        padding: '8px 0',
+                        textDecoration: 'none',
+                        fontSize: '0.9rem',
+                        fontWeight: '500'
+                      }}
+                    >
+                      {item.link_title || 'Learn More'}
+                      <span style={{ fontSize: '0.8rem' }}>→</span>
+                    </a>
+                  )}
                 </div>
               ))}
             </div>
           )}
         </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNav
+        activeTab="training"
+        onTabChange={handleNavTabChange}
+        user={userProfile}
+      />
     </div>
   );
 }

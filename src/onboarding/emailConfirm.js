@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import { Capacitor } from '@capacitor/core';
 import './onboarding.css';
 
 function EmailConfirm() {
@@ -47,25 +46,13 @@ function EmailConfirm() {
   }, [searchParams]);
 
   const goToLogin = () => {
-    if (Capacitor.isNativePlatform()) {
-      // For app users - try to redirect to app, fallback to instructions
-      const appUrl = 'teaminspire://';
-      window.location.href = appUrl;
-
-      // If redirect fails, show instructions after a short delay
-      setTimeout(() => {
-        alert('Please return to the Team Inspire app to continue');
-      }, 1000);
-    } else {
-      // For web users - normal navigation
-      navigate('/');
-    }
+    navigate('/');
   };
 
   if (isConfirming) {
     return (
       <div className="verify-container">
-        <h1 className="verify-title">Team Ins<span className="verify-accent">p</span>ire</h1>
+        <h1 className="verify-title">KLB</h1>
         <div className="verify-pending-container">
           <div className="verify-spinner"></div>
           <h2 className="verify-pending-title">Confirming Your Email</h2>
@@ -78,7 +65,7 @@ function EmailConfirm() {
   if (error) {
     return (
       <div className="verify-container">
-        <h1 className="verify-title">Team Ins<span className="verify-accent">p</span>ire</h1>
+        <h1 className="verify-title">KLB</h1>
         <div className="verify-pending-container">
           <div className="verify-pending-icon">❌</div>
           <h2 className="verify-pending-title">Verification Failed</h2>
@@ -94,7 +81,7 @@ function EmailConfirm() {
   if (isConfirmed) {
     return (
       <div className="verify-container">
-        <h1 className="verify-title">Team Ins<span className="verify-accent">p</span>ire</h1>
+        <h1 className="verify-title">KLB</h1>
         <div className="verify-success-container">
           <div className="verify-success-icon">✓</div>
           <h2 className="verify-success-title">Email Verified!</h2>
@@ -103,7 +90,7 @@ function EmailConfirm() {
           </p>
         </div>
         <button className="verify-primary-button" onClick={goToLogin}>
-          {Capacitor.isNativePlatform() ? 'Return to App' : 'Continue to Login'}
+          Continue to Login
         </button>
       </div>
     );
