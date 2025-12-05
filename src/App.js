@@ -28,6 +28,7 @@ function App() {
   const [session, setSession] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
 
   // Check session and profile on mount and auth changes
   useEffect(() => {
@@ -58,15 +59,23 @@ function App() {
         console.error('Error checking session:', error);
       } finally {
         setLoading(false);
+        setInitialLoadDone(true);
       }
     };
 
     checkSession();
 
-    // Listen for auth changes
+    // Listen for auth changes (only handle after initial load)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
         console.log('Auth event:', event);
+
+        // Skip events during initial load - checkSession handles it
+        if (!initialLoadDone && (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+          console.log('Skipping auth event during initial load');
+          return;
+        }
+
         setSession(newSession);
 
         if (newSession?.user) {
@@ -78,9 +87,9 @@ function App() {
     );
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [initialLoadDone]);
 
-  const loadUserProfile = async (userId) => {
+  const loadUserProfile = async (userId, userEmail = null) => {
     try {
       const { data: profile, error } = await supabase
         .from('users')
@@ -90,11 +99,12 @@ function App() {
 
       if (error && error.code === 'PGRST116') {
         // No profile exists, create one
+        console.log('No profile found, creating new one');
         const { data: newProfile, error: insertError } = await supabase
           .from('users')
           .insert([{
             id: userId,
-            email: session?.user?.email || '',
+            email: userEmail || '',
             first_name: '',
             last_name: '',
             role: 'user',
@@ -104,8 +114,13 @@ function App() {
           .single();
 
         if (!insertError) {
+          console.log('Created new profile:', newProfile);
           setUserProfile(newProfile);
+        } else {
+          console.error('Error creating profile:', insertError);
         }
+      } else if (error) {
+        console.error('Error fetching profile:', error);
       } else if (profile) {
         setUserProfile(profile);
       }
@@ -145,7 +160,7 @@ function App() {
 
   // Determine what to show based on auth state
   const isAuthenticated = !!session;
-  const isProfileComplete = userProfile?.profile_complete !== false;
+  const isProfileComplete = userProfile?.profile_complete === true;
 
   return (
     <Router>
