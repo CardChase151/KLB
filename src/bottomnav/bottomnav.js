@@ -10,9 +10,10 @@ const CHAT_ENABLED = false;
 function BottomNav() {
   const [showMoreNav, setShowMoreNav] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
-  const { userProfile } = useAuth();
+  const { userProfile, user } = useAuth();
 
   // Determine active tab from current path
   const getActiveTab = () => {
@@ -41,6 +42,42 @@ function BottomNav() {
       loadUnreadCount();
     }
   }, [userProfile]);
+
+  // Load unread notifications count
+  useEffect(() => {
+    if (user?.id) {
+      loadUnreadNotifications();
+    }
+  }, [user, location.pathname]);
+
+  const loadUnreadNotifications = async () => {
+    if (!user?.id) return;
+
+    try {
+      // Get all active notifications
+      const { data: notifications, error: notifError } = await supabase
+        .from('notifications_content')
+        .select('id')
+        .eq('is_active', true);
+
+      if (notifError) throw notifError;
+
+      // Get user's read notifications
+      const { data: reads, error: readsError } = await supabase
+        .from('user_notification_reads')
+        .select('notification_id')
+        .eq('user_id', user.id);
+
+      if (readsError) throw readsError;
+
+      const readIds = new Set((reads || []).map(r => r.notification_id));
+      const unreadCount = (notifications || []).filter(n => !readIds.has(n.id)).length;
+
+      setUnreadNotifications(unreadCount);
+    } catch (error) {
+      console.error('Error loading unread notifications:', error);
+    }
+  };
 
   const loadUnreadCount = async () => {
     if (!CHAT_ENABLED || !userProfile?.id) return;
@@ -164,11 +201,35 @@ function BottomNav() {
         <button
           onClick={() => handleNavClick('notifications')}
           className={`nav-button ${activeTab === 'notifications' ? 'active' : ''}`}
+          style={{ position: 'relative' }}
         >
-          <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.73 21a2 2 0 01-3.46 0" />
-          </svg>
+          <div style={{ position: 'relative', display: 'inline-flex' }}>
+            <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.73 21a2 2 0 01-3.46 0" />
+            </svg>
+            {unreadNotifications > 0 && (
+              <span style={{
+                position: 'absolute',
+                top: '-4px',
+                right: '-6px',
+                backgroundColor: '#3b82f6',
+                color: '#ffffff',
+                fontSize: '10px',
+                fontWeight: '700',
+                minWidth: '16px',
+                height: '16px',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '0 4px',
+                boxSizing: 'border-box'
+              }}>
+                {unreadNotifications > 9 ? '9+' : unreadNotifications}
+              </span>
+            )}
+          </div>
           <span className="nav-label">Notifications</span>
         </button>
 

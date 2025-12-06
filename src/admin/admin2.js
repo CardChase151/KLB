@@ -290,12 +290,15 @@ function Admin2() {
         if (contentType !== 'training' && contentType !== 'licensing') {
           delete submitData.category;
         }
+        // Remove license_type for content types that don't have it
+        if (contentType !== 'licensing') {
+          delete submitData.license_type;
+        }
         // Notifications only needs title, description, url, link_title
         if (contentType === 'notifications') {
           delete submitData.image_url;
           delete submitData.use_logo;
           delete submitData.sort_order;
-          delete submitData.license_type;
         }
         targetTable = tableName;
       }

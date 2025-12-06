@@ -19,7 +19,6 @@ function AdminLevelUp() {
   const [levelItems, setLevelItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [quizQuestions, setQuizQuestions] = useState([]);
-  const [users, setUsers] = useState([]);
   const [certificateSettings, setCertificateSettings] = useState(null);
 
   // Form states
@@ -162,25 +161,6 @@ function AdminLevelUp() {
     } catch (error) {
       console.error('Error loading questions:', error);
       alert('Error loading questions: ' + error.message);
-    }
-  };
-
-  const loadUsers = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .select(`
-          id, first_name, last_name, email,
-          user_level_status (*),
-          user_level_progress (*)
-        `)
-        .order('first_name', { ascending: true });
-
-      if (error) throw error;
-      setUsers(data || []);
-    } catch (error) {
-      console.error('Error loading users:', error);
-      alert('Error loading users: ' + error.message);
     }
   };
 
@@ -527,47 +507,6 @@ function AdminLevelUp() {
     }
   };
 
-  const handleResetUserProgress = async (userId) => {
-    if (!window.confirm('Are you sure you want to reset this user\'s progress?')) {
-      return;
-    }
-
-    try {
-      // Delete progress
-      await supabase
-        .from('user_level_progress')
-        .delete()
-        .eq('user_id', userId);
-
-      // Delete quiz attempts
-      await supabase
-        .from('user_quiz_attempts')
-        .delete()
-        .eq('user_id', userId);
-
-      // Reset level status (keep level 1 unlocked)
-      await supabase
-        .from('user_level_status')
-        .delete()
-        .eq('user_id', userId);
-
-      // Log the reset
-      await supabase
-        .from('progress_reset_log')
-        .insert([{
-          user_id: userId,
-          reset_by: user.id,
-          reset_type: 'full'
-        }]);
-
-      await loadUsers();
-      alert('User progress has been reset');
-    } catch (error) {
-      console.error('Error resetting progress:', error);
-      alert('Error resetting progress: ' + error.message);
-    }
-  };
-
   // Toggle publish
   const handleTogglePublish = async (item) => {
     try {
@@ -667,7 +606,7 @@ function AdminLevelUp() {
       setViewMode('levels');
       setSelectedLevel(null);
       setLevelItems([]);
-    } else if (viewMode === 'users' || viewMode === 'certificate') {
+    } else if (viewMode === 'certificate') {
       setViewMode('levels');
     } else {
       navigate('/admin');
@@ -709,7 +648,6 @@ function AdminLevelUp() {
   const getTitle = () => {
     if (viewMode === 'quiz' && selectedItem) return `Quiz: ${selectedItem.title}`;
     if (viewMode === 'items' && selectedLevel) return selectedLevel.name || `Level ${selectedLevel.level_number}`;
-    if (viewMode === 'users') return 'User Progress';
     if (viewMode === 'certificate') return 'Certificate Settings';
     return 'Level Up Management';
   };
@@ -796,22 +734,6 @@ function AdminLevelUp() {
               {/* Quick Actions */}
               <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
                 <button
-                  onClick={() => { setViewMode('users'); loadUsers(); }}
-                  style={{
-                    flex: 1,
-                    minWidth: '120px',
-                    padding: '12px',
-                    backgroundColor: '#1a1a1a',
-                    border: '1px solid #2a2a2a',
-                    borderRadius: '8px',
-                    color: '#fff',
-                    cursor: 'pointer',
-                    fontSize: '0.85rem'
-                  }}
-                >
-                  User Progress
-                </button>
-                <button
                   onClick={() => setViewMode('certificate')}
                   style={{
                     flex: 1,
@@ -825,7 +747,7 @@ function AdminLevelUp() {
                     fontSize: '0.85rem'
                   }}
                 >
-                  Certificate
+                  Certificate Settings
                 </button>
               </div>
 
@@ -1234,73 +1156,6 @@ function AdminLevelUp() {
                     </div>
                   </div>
                 ))}
-              </div>
-            </>
-          )}
-
-          {/* Users View */}
-          {viewMode === 'users' && (
-            <>
-              <p style={{ color: '#888', fontSize: '0.9rem', margin: '0 0 16px 0', textAlign: 'center' }}>
-                View and reset user progress
-              </p>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {users.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-                    <p>No users found.</p>
-                  </div>
-                ) : (
-                  users.map(u => {
-                    const completedLevels = u.user_level_status?.filter(s => s.is_completed).length || 0;
-                    const completedItems = u.user_level_progress?.filter(p => p.is_completed).length || 0;
-
-                    return (
-                      <div
-                        key={u.id}
-                        style={{
-                          backgroundColor: '#1a1a1a',
-                          border: '1px solid #2a2a2a',
-                          borderRadius: '12px',
-                          padding: '16px'
-                        }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                          <div>
-                            <div style={{ color: '#fff', fontWeight: '600' }}>
-                              {u.first_name} {u.last_name}
-                            </div>
-                            <div style={{ color: '#666', fontSize: '0.85rem', marginBottom: '8px' }}>
-                              {u.email}
-                            </div>
-                            <div style={{ display: 'flex', gap: '12px', fontSize: '0.85rem' }}>
-                              <span style={{ color: '#888' }}>
-                                Levels: <span style={{ color: '#22c55e' }}>{completedLevels}</span>
-                              </span>
-                              <span style={{ color: '#888' }}>
-                                Items: <span style={{ color: '#22c55e' }}>{completedItems}</span>
-                              </span>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => handleResetUserProgress(u.id)}
-                            style={{
-                              padding: '8px 16px',
-                              backgroundColor: '#ef4444',
-                              border: 'none',
-                              borderRadius: '6px',
-                              color: '#fff',
-                              cursor: 'pointer',
-                              fontSize: '0.85rem'
-                            }}
-                          >
-                            Reset
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
               </div>
             </>
           )}

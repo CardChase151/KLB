@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
-import { withTimeoutAndRefresh } from '../utils/supabaseHelpers';
 import './content.css';
 
 function Notifications() {
-  const { userProfile } = useAuth();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState([]);
+  const [readIds, setReadIds] = useState(new Set());
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,16 +18,27 @@ function Notifications() {
 
   const loadNotifications = async () => {
     try {
-      const { data, error } = await withTimeoutAndRefresh(
-        supabase
-          .from('notifications_content')
-          .select('*')
-          .eq('is_active', true)
-          .order('created_at', { ascending: false })
-      );
+      // Load notifications
+      const { data: notifData, error: notifError } = await supabase
+        .from('notifications_content')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setNotifications(data || []);
+      if (notifError) throw notifError;
+      setNotifications(notifData || []);
+
+      // Load user's read notifications
+      if (user?.id) {
+        const { data: reads, error: readsError } = await supabase
+          .from('user_notification_reads')
+          .select('notification_id')
+          .eq('user_id', user.id);
+
+        if (!readsError && reads) {
+          setReadIds(new Set(reads.map(r => r.notification_id)));
+        }
+      }
     } catch (error) {
       console.error('Error loading notifications:', error);
     } finally {
@@ -39,17 +50,28 @@ function Notifications() {
     navigate('/home');
   };
 
-  const handleTabChange = (tab) => {
-    if (tab === 'home') {
-      navigate('/home');
-    } else if (tab === 'training') {
-      navigate('/training');
-    } else if (tab === 'schedule') {
-      navigate('/schedule');
-    } else if (tab === 'licensing') {
-      navigate('/licensing');
-    } else if (tab === 'calculator') {
-      navigate('/calculator');
+  const handleNotificationClick = async (notification) => {
+    // Mark as read if not already
+    if (!readIds.has(notification.id) && user?.id) {
+      try {
+        const { error } = await supabase
+          .from('user_notification_reads')
+          .insert({
+            user_id: user.id,
+            notification_id: notification.id
+          });
+
+        if (!error) {
+          setReadIds(prev => new Set([...prev, notification.id]));
+        }
+      } catch (error) {
+        console.error('Error marking notification as read:', error);
+      }
+    }
+
+    // Open link if present
+    if (notification.url) {
+      window.open(notification.url, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -161,11 +183,7 @@ function Notifications() {
             textAlign: 'center'
           }}>Announcements and updates</p>
 
-          {loading ? (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-              <div className="spinner"></div>
-            </div>
-          ) : notifications.length === 0 ? (
+          {notifications.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
               <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ marginBottom: '16px', opacity: 0.5 }}>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9z" />
@@ -175,72 +193,84 @@ function Notifications() {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {notifications.map((item) => (
-                <div
-                  key={item.id}
-                  style={{
-                    backgroundColor: '#1a1a1a',
-                    borderRadius: '12px',
-                    padding: '16px',
-                    border: '1px solid #2a2a2a'
-                  }}
-                >
-                  {/* Title and Date */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                    <h3 style={{
-                      color: '#ffffff',
-                      fontSize: '1rem',
-                      fontWeight: '600',
-                      margin: 0,
-                      flex: 1
-                    }}>
-                      {item.title}
-                    </h3>
-                    <span style={{
-                      color: '#666',
-                      fontSize: '0.75rem',
-                      marginLeft: '12px',
-                      flexShrink: 0
-                    }}>{formatDate(item.created_at)}</span>
-                  </div>
+              {notifications.map((item) => {
+                const isRead = readIds.has(item.id);
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => handleNotificationClick(item)}
+                    style={{
+                      backgroundColor: '#1a1a1a',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      border: isRead ? '1px solid #2a2a2a' : '1px solid #3b82f6',
+                      cursor: 'pointer',
+                      position: 'relative'
+                    }}
+                  >
+                    {/* Unread indicator */}
+                    {!isRead && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '16px',
+                        right: '16px',
+                        width: '10px',
+                        height: '10px',
+                        borderRadius: '50%',
+                        backgroundColor: '#3b82f6'
+                      }} />
+                    )}
 
-                  {/* Description */}
-                  {item.description && (
-                    <p style={{
-                      color: '#888',
-                      fontSize: '0.9rem',
-                      margin: 0,
-                      lineHeight: '1.5'
-                    }}>
-                      {item.description}
-                    </p>
-                  )}
+                    {/* Title and Date */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px', paddingRight: isRead ? '0' : '20px' }}>
+                      <h3 style={{
+                        color: isRead ? '#888' : '#ffffff',
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        margin: 0,
+                        flex: 1
+                      }}>
+                        {item.title}
+                      </h3>
+                      <span style={{
+                        color: '#666',
+                        fontSize: '0.75rem',
+                        marginLeft: '12px',
+                        flexShrink: 0
+                      }}>{formatDate(item.created_at)}</span>
+                    </div>
 
-                  {/* Link Button */}
-                  {item.url && (
-                    <a
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
+                    {/* Description */}
+                    {item.description && (
+                      <p style={{
+                        color: isRead ? '#666' : '#888',
+                        fontSize: '0.9rem',
+                        margin: 0,
+                        lineHeight: '1.5'
+                      }}>
+                        {item.description}
+                      </p>
+                    )}
+
+                    {/* Link indicator */}
+                    {item.url && (
+                      <div style={{
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '6px',
-                        backgroundColor: 'transparent',
                         color: '#4da6ff',
                         padding: '8px 0',
                         marginTop: '8px',
-                        textDecoration: 'none',
                         fontSize: '0.9rem',
                         fontWeight: '500'
-                      }}
-                    >
-                      {item.link_title || 'Learn More'}
-                      <span style={{ fontSize: '0.8rem' }}>→</span>
-                    </a>
-                  )}
-                </div>
-              ))}
+                      }}>
+                        {item.link_title || 'Learn More'}
+                        <span style={{ fontSize: '0.8rem' }}>→</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

@@ -26,13 +26,15 @@ import Profile from './main/profile';
 import Notifications from './main/notifications';
 import LevelUp from './main/levelup';
 import AdminLevelUp from './admin/AdminLevelUp';
+import AdminNewRepProgress from './admin/AdminNewRepProgress';
+import AdminLevelUpProgress from './admin/AdminLevelUpProgress';
 import LevelItemViewer from './main/LevelItemViewer';
 
 // Routes that should NOT show bottom nav
 const noNavRoutes = ['/', '/create-account', '/email-verify', '/confirm', '/forgot-password', '/new-password', '/profile-complete'];
 
 function AppContent() {
-  const { loading, initialized, isAuthenticated, isProfileComplete, refreshProfile } = useAuth();
+  const { loading, isAuthenticated, isProfileComplete, refreshProfile } = useAuth();
   const location = useLocation();
 
   // Determine if bottom nav should show
@@ -54,7 +56,7 @@ function AppContent() {
     setupStatusBar();
   }, []);
 
-  if (loading || !initialized) {
+  if (loading) {
     return (
       <div style={{
         display: 'flex',
@@ -159,6 +161,12 @@ function AppContent() {
         } />
         <Route path="/admin/levelup" element={
           !isAuthenticated ? <Navigate to="/" replace /> : !isProfileComplete ? <Navigate to="/profile-complete" replace /> : <AdminLevelUp />
+        } />
+        <Route path="/admin/newrepstart-progress" element={
+          !isAuthenticated ? <Navigate to="/" replace /> : !isProfileComplete ? <Navigate to="/profile-complete" replace /> : <AdminNewRepProgress />
+        } />
+        <Route path="/admin/levelup-progress" element={
+          !isAuthenticated ? <Navigate to="/" replace /> : !isProfileComplete ? <Navigate to="/profile-complete" replace /> : <AdminLevelUpProgress />
         } />
         </Routes>
       </div>
