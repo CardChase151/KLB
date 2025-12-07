@@ -185,16 +185,32 @@ function Admin() {
           <div className="admin-menu">
             <button
               className="admin-menu-button"
+              onClick={() => navigate('/admin/users')}
+            >
+              <div className="admin-menu-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              </div>
+              <div className="admin-menu-content">
+                <div className="admin-menu-title">User Management</div>
+                <div className="admin-menu-desc">Manage roles, permissions, and view progress</div>
+              </div>
+              <div className="admin-menu-arrow">→</div>
+            </button>
+
+            <button
+              className="admin-menu-button"
               onClick={() => handleManageContent('home')}
             >
               <div className="admin-menu-icon">
-                <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
               </div>
               <div className="admin-menu-content">
                 <div className="admin-menu-title">Home Screen</div>
-                <div className="admin-menu-desc">Manage home screen content and announcements</div>
+                <div className="admin-menu-desc">Manage home screen content</div>
               </div>
               <div className="admin-menu-arrow">→</div>
             </button>
@@ -204,29 +220,13 @@ function Admin() {
               onClick={() => handleManageContent('newrepstart')}
             >
               <div className="admin-menu-icon">
-                <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 2H21l-3 6 3 6h-8.5l-1-2H5a2 2 0 00-2 2zm9-13.5V9" />
                 </svg>
               </div>
               <div className="admin-menu-content">
                 <div className="admin-menu-title">10 Day Launch</div>
-                <div className="admin-menu-desc">Manage new representative onboarding content</div>
-              </div>
-              <div className="admin-menu-arrow">→</div>
-            </button>
-
-            <button
-              className="admin-menu-button"
-              onClick={() => navigate('/admin/newrepstart-progress')}
-            >
-              <div className="admin-menu-icon">
-                <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                </svg>
-              </div>
-              <div className="admin-menu-content">
-                <div className="admin-menu-title">10 Day Launch Progress</div>
-                <div className="admin-menu-desc">View user completion progress and timestamps</div>
+                <div className="admin-menu-desc">Manage onboarding content</div>
               </div>
               <div className="admin-menu-arrow">→</div>
             </button>
@@ -236,13 +236,13 @@ function Admin() {
               onClick={() => handleManageContent('training_combined')}
             >
               <div className="admin-menu-icon">
-                <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
               <div className="admin-menu-content">
-                <div className="admin-menu-title">Manage Training Content</div>
-                <div className="admin-menu-desc">Add categories and training materials</div>
+                <div className="admin-menu-title">Training Content</div>
+                <div className="admin-menu-desc">Categories and training materials</div>
               </div>
               <div className="admin-menu-arrow">→</div>
             </button>
@@ -252,13 +252,13 @@ function Admin() {
               onClick={() => handleManageContent('licensing_combined')}
             >
               <div className="admin-menu-icon">
-                <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
               <div className="admin-menu-content">
-                <div className="admin-menu-title">Manage Licensing Content</div>
-                <div className="admin-menu-desc">Add categories and licensing materials</div>
+                <div className="admin-menu-title">Licensing Content</div>
+                <div className="admin-menu-desc">Categories and licensing materials</div>
               </div>
               <div className="admin-menu-arrow">→</div>
             </button>
@@ -268,48 +268,30 @@ function Admin() {
               onClick={() => handleManageContent('schedule')}
             >
               <div className="admin-menu-icon">
-                <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
               <div className="admin-menu-content">
                 <div className="admin-menu-title">Schedule</div>
-                <div className="admin-menu-desc">Manage events and scheduling content</div>
+                <div className="admin-menu-desc">Manage events and schedule</div>
               </div>
               <div className="admin-menu-arrow">→</div>
             </button>
-
-            {/* Chat Management - Hidden for now
-            <button
-              className="admin-menu-button"
-              onClick={() => handleManageContent('chat')}
-            >
-              <div className="admin-menu-icon">
-                <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-              </div>
-              <div className="admin-menu-content">
-                <div className="admin-menu-title">Chat Management</div>
-                <div className="admin-menu-desc">Manage user chat permissions</div>
-              </div>
-              <div className="admin-menu-arrow">→</div>
-            </button>
-            */}
 
             <button
               className="admin-menu-button"
               onClick={() => handleManageContent('notifications')}
             >
               <div className="admin-menu-icon">
-                <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.73 21a2 2 0 01-3.46 0" />
                 </svg>
               </div>
               <div className="admin-menu-content">
-                <div className="admin-menu-title">Notification Management</div>
-                <div className="admin-menu-desc">Manage notifications and announcements</div>
+                <div className="admin-menu-title">Notifications</div>
+                <div className="admin-menu-desc">Send push notifications</div>
               </div>
               <div className="admin-menu-arrow">→</div>
             </button>
@@ -319,45 +301,13 @@ function Admin() {
               onClick={() => navigate('/admin/levelup')}
             >
               <div className="admin-menu-icon">
-                <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
               </div>
               <div className="admin-menu-content">
                 <div className="admin-menu-title">Level Up Management</div>
-                <div className="admin-menu-desc">Manage levels, content, quizzes, and certificates</div>
-              </div>
-              <div className="admin-menu-arrow">→</div>
-            </button>
-
-            <button
-              className="admin-menu-button"
-              onClick={() => navigate('/admin/levelup-progress')}
-            >
-              <div className="admin-menu-icon">
-                <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-              <div className="admin-menu-content">
-                <div className="admin-menu-title">Level Up Progress</div>
-                <div className="admin-menu-desc">View user progress and completion timestamps</div>
-              </div>
-              <div className="admin-menu-arrow">→</div>
-            </button>
-
-            <button
-              className="admin-menu-button"
-              onClick={() => navigate('/admin/users')}
-            >
-              <div className="admin-menu-icon">
-                <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              </div>
-              <div className="admin-menu-content">
-                <div className="admin-menu-title">User Management</div>
-                <div className="admin-menu-desc">Manage user roles and permissions</div>
+                <div className="admin-menu-desc">Levels, quizzes, and certificates</div>
               </div>
               <div className="admin-menu-arrow">→</div>
             </button>
