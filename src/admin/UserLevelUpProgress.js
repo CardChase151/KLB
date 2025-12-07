@@ -172,8 +172,59 @@ function UserLevelUpProgress() {
 
   if (!user) {
     return (
-      <div className="admin-container">
-        <p style={{ color: '#888', textAlign: 'center' }}>User not found</p>
+      <div style={{
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        right: '0',
+        bottom: '0',
+        overflow: 'hidden',
+        backgroundColor: '#0a0a0a',
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
+        <div className="desktop-header-wrapper" style={{
+          display: 'flex',
+          alignItems: 'center',
+          padding: '12px 16px',
+          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)',
+          backgroundColor: '#0a0a0a',
+          flexShrink: 0,
+          position: 'relative',
+          gap: '12px'
+        }}>
+          <button
+            onClick={goBack}
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '12px',
+              backgroundColor: '#1a1a1a',
+              border: '1px solid #2a2a2a',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: '#ffffff',
+              flexShrink: 0,
+              fontSize: '1.2rem'
+            }}
+          >
+            ←
+          </button>
+          <h1 style={{
+            color: '#ffffff',
+            fontSize: '18px',
+            fontWeight: '700',
+            margin: 0,
+            flex: 1,
+            textAlign: 'center',
+            marginRight: '40px'
+          }}>Level Up Progress</h1>
+        </div>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <p style={{ color: '#888', textAlign: 'center' }}>User not found</p>
+        </div>
       </div>
     );
   }
@@ -329,6 +380,16 @@ function UserLevelUpProgress() {
             }}>
               {completedItems}/{totalItems} items completed
             </div>
+            {completedItems === 0 && totalItems > 0 && (
+              <div style={{
+                color: '#666',
+                fontSize: '0.8rem',
+                marginTop: '8px',
+                fontStyle: 'italic'
+              }}>
+                User hasn't started yet
+              </div>
+            )}
           </div>
 
           {/* Levels */}
