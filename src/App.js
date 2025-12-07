@@ -28,6 +28,9 @@ import LevelUp from './main/levelup';
 import AdminLevelUp from './admin/AdminLevelUp';
 import AdminNewRepProgress from './admin/AdminNewRepProgress';
 import AdminLevelUpProgress from './admin/AdminLevelUpProgress';
+import AdminUserManagement from './admin/AdminUserManagement';
+import User10DayProgress from './admin/User10DayProgress';
+import UserLevelUpProgress from './admin/UserLevelUpProgress';
 import LevelItemViewer from './main/LevelItemViewer';
 
 // Routes that should NOT show bottom nav
@@ -167,6 +170,15 @@ function AppContent() {
         } />
         <Route path="/admin/levelup-progress" element={
           !isAuthenticated ? <Navigate to="/" replace /> : !isProfileComplete ? <Navigate to="/profile-complete" replace /> : <AdminLevelUpProgress />
+        } />
+        <Route path="/admin/users" element={
+          !isAuthenticated ? <Navigate to="/" replace /> : !isProfileComplete ? <Navigate to="/profile-complete" replace /> : <AdminUserManagement />
+        } />
+        <Route path="/admin/users/:userId/10day" element={
+          !isAuthenticated ? <Navigate to="/" replace /> : !isProfileComplete ? <Navigate to="/profile-complete" replace /> : <User10DayProgress />
+        } />
+        <Route path="/admin/users/:userId/levelup" element={
+          !isAuthenticated ? <Navigate to="/" replace /> : !isProfileComplete ? <Navigate to="/profile-complete" replace /> : <UserLevelUpProgress />
         } />
         </Routes>
       </div>
