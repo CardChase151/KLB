@@ -35,7 +35,9 @@ function Licensing() {
           .select('*')
           .eq('license_type', activeTab)
           .eq('is_active', true)
-          .order('sort_order', { ascending: true })
+          .order('sort_order', { ascending: true }),
+        5000,
+        'licensing_categories'
       );
 
       if (error) throw error;
@@ -56,7 +58,9 @@ function Licensing() {
           .select('*')
           .eq('category', categoryName)
           .eq('is_active', true)
-          .order('sort_order', { ascending: true })
+          .order('sort_order', { ascending: true }),
+        5000,
+        'licensing_content'
       );
 
       if (error) throw error;

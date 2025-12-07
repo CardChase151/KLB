@@ -797,9 +797,9 @@
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
-    justify-content: flex-start !important;
+    justify-content: center !important;
     min-height: 100vh !important;
-    padding: 18vh 24px 60px 24px !important;
+    padding: 40px 24px 60px 24px !important;
     background-color: #0a0a0a !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
@@ -1241,7 +1241,9 @@
 
   @media (max-width: 768px) {
     .login-container {
+      justify-content: flex-start !important;
       padding: 14vh 20px 60px 20px !important;
+      padding-top: calc(env(safe-area-inset-top, 0px) + 14vh) !important;
     }
 
     .login-logo {
@@ -1260,7 +1262,9 @@
 
   @media (max-width: 480px) {
     .login-container {
+      justify-content: flex-start !important;
       padding: 12vh 16px 60px 16px !important;
+      padding-top: calc(env(safe-area-inset-top, 0px) + 12vh) !important;
     }
 
     .login-logo {

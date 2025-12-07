@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
+import { withTimeoutAndRefresh } from '../utils/supabaseHelpers';
 import './content.css';
 import logo from '../assets/klb-logo.png';
 
@@ -21,22 +22,30 @@ function NewRepStart() {
 
   const loadContent = async () => {
     try {
-      // Load content items
-      const { data: contentData, error: contentError } = await supabase
-        .from('newrepstart_content')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true });
+      // Load content items with timeout
+      const { data: contentData, error: contentError } = await withTimeoutAndRefresh(
+        supabase
+          .from('newrepstart_content')
+          .select('*')
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true }),
+        5000,
+        'newrepstart_content'
+      );
 
       if (contentError) throw contentError;
       setContentItems(contentData || []);
 
-      // Load user's completed items
+      // Load user's completed items with timeout
       if (user?.id) {
-        const { data: progressData, error: progressError } = await supabase
-          .from('user_newrepstart_progress')
-          .select('content_id, completed_at')
-          .eq('user_id', user.id);
+        const { data: progressData, error: progressError } = await withTimeoutAndRefresh(
+          supabase
+            .from('user_newrepstart_progress')
+            .select('content_id, completed_at')
+            .eq('user_id', user.id),
+          5000,
+          'user_newrepstart_progress'
+        );
 
         if (!progressError && progressData) {
           const completed = {};

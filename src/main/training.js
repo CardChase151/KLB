@@ -27,7 +27,9 @@ function Training() {
           .from('training_categories')
           .select('*')
           .eq('is_active', true)
-          .order('sort_order', { ascending: true })
+          .order('sort_order', { ascending: true }),
+        5000,
+        'training_categories'
       );
 
       if (error) throw error;
@@ -62,7 +64,9 @@ function Training() {
           .select('*')
           .eq('category', categoryName)
           .eq('is_active', true)
-          .order('sort_order', { ascending: true })
+          .order('sort_order', { ascending: true }),
+        5000,
+        'training_content'
       );
 
       if (error) throw error;

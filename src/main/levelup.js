@@ -58,7 +58,9 @@ function LevelUp() {
           .from('levels')
           .select('*')
           .eq('is_active', true)
-          .order('level_number', { ascending: true })
+          .order('level_number', { ascending: true }),
+        5000,
+        'levels'
       );
 
       if (error) throw error;
@@ -70,10 +72,14 @@ function LevelUp() {
 
   const loadUserLevelStatus = async (userId) => {
     try {
-      const { data, error } = await supabase
-        .from('user_level_status')
-        .select('*')
-        .eq('user_id', userId);
+      const { data, error } = await withTimeoutAndRefresh(
+        supabase
+          .from('user_level_status')
+          .select('*')
+          .eq('user_id', userId),
+        5000,
+        'user_level_status'
+      );
 
       if (error) throw error;
 
@@ -86,23 +92,31 @@ function LevelUp() {
 
       // If no status exists for level 1, create it (level 1 is always unlocked)
       if (data?.length === 0) {
-        const { data: levels } = await supabase
-          .from('levels')
-          .select('id')
-          .eq('level_number', 1)
-          .single();
+        const { data: levels } = await withTimeoutAndRefresh(
+          supabase
+            .from('levels')
+            .select('id')
+            .eq('level_number', 1)
+            .single(),
+          5000,
+          'levels_for_unlock'
+        );
 
         if (levels) {
-          const { data: newStatus } = await supabase
-            .from('user_level_status')
-            .insert([{
-              user_id: userId,
-              level_id: levels.id,
-              is_unlocked: true,
-              unlocked_at: new Date().toISOString()
-            }])
-            .select()
-            .single();
+          const { data: newStatus } = await withTimeoutAndRefresh(
+            supabase
+              .from('user_level_status')
+              .insert([{
+                user_id: userId,
+                level_id: levels.id,
+                is_unlocked: true,
+                unlocked_at: new Date().toISOString()
+              }])
+              .select()
+              .single(),
+            5000,
+            'user_level_status_insert'
+          );
 
           if (newStatus) {
             setUserLevelStatus({ [newStatus.level_id]: newStatus });
@@ -116,11 +130,15 @@ function LevelUp() {
 
   const loadCertificateSettings = async () => {
     try {
-      const { data, error } = await supabase
-        .from('certificate_settings')
-        .select('*')
-        .eq('is_active', true)
-        .maybeSingle();  // Use maybeSingle - returns null if no row
+      const { data, error } = await withTimeoutAndRefresh(
+        supabase
+          .from('certificate_settings')
+          .select('*')
+          .eq('is_active', true)
+          .maybeSingle(),
+        5000,
+        'certificate_settings'
+      );
 
       if (!error && data) {
         setCertificateSettings(data);
@@ -132,11 +150,15 @@ function LevelUp() {
 
   const loadUserCertificate = async (userId) => {
     try {
-      const { data, error } = await supabase
-        .from('user_certificates')
-        .select('*')
-        .eq('user_id', userId)
-        .maybeSingle();  // Use maybeSingle instead of single - returns null if no row
+      const { data, error } = await withTimeoutAndRefresh(
+        supabase
+          .from('user_certificates')
+          .select('*')
+          .eq('user_id', userId)
+          .maybeSingle(),
+        5000,
+        'user_certificates'
+      );
 
       if (!error && data) {
         setUserCertificate(data);
@@ -203,14 +225,18 @@ function LevelUp() {
       const { data: { session } } = await supabase.auth.getSession();
 
       // Load items for this level
-      const { data: items, error } = await supabase
-        .from('level_items')
-        .select('*')
-        .eq('level_id', levelId)
-        .eq('is_published', true)
-        .eq('is_active', true)
-        .is('archived_at', null)
-        .order('sort_order', { ascending: true });
+      const { data: items, error } = await withTimeoutAndRefresh(
+        supabase
+          .from('level_items')
+          .select('*')
+          .eq('level_id', levelId)
+          .eq('is_published', true)
+          .eq('is_active', true)
+          .is('archived_at', null)
+          .order('sort_order', { ascending: true }),
+        5000,
+        'level_items'
+      );
 
       if (error) throw error;
       setLevelItems(items || []);
@@ -218,11 +244,15 @@ function LevelUp() {
       // Load user's progress for these items
       if (session?.user && items?.length > 0) {
         const itemIds = items.map(i => i.id);
-        const { data: progress, error: progressError } = await supabase
-          .from('user_level_progress')
-          .select('*')
-          .eq('user_id', session.user.id)
-          .in('level_item_id', itemIds);
+        const { data: progress, error: progressError } = await withTimeoutAndRefresh(
+          supabase
+            .from('user_level_progress')
+            .select('*')
+            .eq('user_id', session.user.id)
+            .in('level_item_id', itemIds),
+          5000,
+          'user_level_progress'
+        );
 
         if (!progressError) {
           const progressMap = {};
